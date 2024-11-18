@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Web - Anima Insights</title>
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body class="dark-theme">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" class="logo">Anima Insights</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/record" class="nav-link">Record Dreams</a>
+            <a href="/analysis" class="nav-link">Jungian Analysis</a>
+            <a href="/web" class="nav-link active">Dream Web</a>
+            <a href="/oracle" class="nav-link">The Oracle</a>
+            <a href="/about" class="nav-link">About</a>
+            <a href="/contact" class="nav-link">Contact</a>
+        </div>
+        <div class="nav-auth">
+            <button class="btn-login">Login</button>
+            <button class="btn-signup">Sign Up</button>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <section class="dream-web">
+            <div class="page-header">
+                <div class="header-icon web-icon">
+                    <i class="fas fa-spider"></i>
+                    <i class="fas fa-circle-nodes"></i>
+                </div>
+                <h1>Dream Web</h1>
+                <p>Visualize the interconnected patterns of your dream consciousness</p>
+            </div>
+
+            <div class="web-content">
+                <div class="web-controls">
+                    <div class="control-group">
+                        <label for="timeRange">Time Range</label>
+                        <select id="timeRange">
+                            <option value="week">Past Week</option>
+                            <option value="month">Past Month</option>
+                            <option value="year">Past Year</option>
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="connectionType">Connection Type</label>
+                        <select id="connectionType">
+                            <option value="symbols">Symbols</option>
+                            <option value="emotions">Emotions</option>
+                            <option value="archetypes">Archetypes</option>
+                            <option value="themes">Themes</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="visualizationType">Visualization</label>
+                        <select id="visualizationType">
+                            <option value="force">Force-Directed</option>
+                            <option value="radial">Radial</option>
+                            <option value="cluster">Hierarchical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="web-visualization">
+                    <div id="dreamWeb"></div>
+                    <div class="web-legend">
+                        <div class="legend-item">
+                            <span class="legend-color dream"></span>
+                            <span>Dream</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color symbol"></span>
+                            <span>Symbol</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color connection"></span>
+                            <span>Connection</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="web-details">
+                    <div class="details-panel">
+                        <h3>Selected Node Details</h3>
+                        <div id="nodeDetails">
+                            <p class="placeholder">Click on a node to view details</p>
+                        </div>
+                    </div>
+
+                    <div class="insights-panel">
+                        <h3>Pattern Insights</h3>
+                        <div id="patternInsights">
+                            <ul>
+                                <li>Most common symbols</li>
+                                <li>Recurring themes</li>
+                                <li>Emotional patterns</li>
+                                <li>Temporal correlations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="/help">Help Center</a>
+            </div>
+            <div class="footer-section">
+                <h3>Connect</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <a href="mailto:contact@animainsights.com">contact@animainsights.com</a>
+                <a href="/feedback">Send Feedback</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Anima Insights. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/src/main.js" type="module"></script>
+    <script src="/src/pages/web.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anima Insights - Dream Interpreter</title>
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/styles/auth.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body class="dark-theme">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" class="logo">Anima Insights</a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Home</a>
+            <a href="/src/pages/record.html" class="nav-link">Record Dreams</a>
+            <a href="/src/pages/analysis.html" class="nav-link">Jungian Analysis</a>
+            <a href="/src/pages/web.html" class="nav-link">Dream Web</a>
+            <a href="/src/pages/oracle.html" class="nav-link">The Oracle</a>
+            <a href="/about" class="nav-link">About</a>
+            <a href="/contact" class="nav-link">Contact</a>
+            <button class="btn-auth" onclick="window.showSignIn()">Sign In</button>
+            <button class="btn-auth btn-auth-primary" onclick="window.showSignUp()">Sign Up</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Unlock the Hidden Messages of Your Dreams</h1>
+                <p class="hero-subtitle">Journey into your unconscious mind and discover the wisdom within</p>
+                <button class="btn-cta">Start Exploring</button>
+            </div>
+            <div class="hero-background"></div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card record">
+                <div class="feature-icon record-icon">
+                    <i class="fas fa-feather-alt"></i>
+                    <i class="fas fa-book"></i>
+                    <i class="fas fa-pen-nib"></i>
+                </div>
+                <h2>Record Dreams</h2>
+                <p>Capture your dreams in our mystical journal, where every detail is preserved in the ethereal realm.</p>
+                <button class="btn-feature">Record Now</button>
+            </div>
+
+            <div class="feature-card jung">
+                <div class="feature-icon jung-icon">
+                    <i class="fas fa-brain"></i>
+                    <i class="fas fa-yin-yang"></i>
+                    <i class="fas fa-infinity"></i>
+                </div>
+                <h2>Jungian Analysis</h2>
+                <p>Explore the depths of your psyche through the lens of Carl Jung's archetypal wisdom.</p>
+                <button class="btn-feature">Analyze with Jung</button>
+            </div>
+
+            <div class="feature-card web">
+                <div class="feature-icon web-icon">
+                    <i class="fas fa-circle"></i>
+                    <i class="fas fa-spider"></i>
+                    <i class="fas fa-circle"></i>
+                </div>
+                <h2>Dream Web</h2>
+                <p>Visualize the intricate connections between your dreams and the collective unconscious.</p>
+                <button class="btn-feature">Discover the Web</button>
+            </div>
+
+            <div class="feature-card oracle">
+                <div class="feature-icon oracle-icon">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <h2>The Oracle</h2>
+                <p>Seek guidance from our mystical oracle, powered by ancient wisdom and modern insight.</p>
+                <button class="btn-feature">Consult The Oracle</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="/help">Help Center</a>
+            </div>
+            <div class="footer-section">
+                <h3>Connect</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <a href="mailto:contact@animainsights.com">contact@animainsights.com</a>
+                <a href="/feedback">Send Feedback</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Anima Insights. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/src/main.js" type="module"></script>
+</body>
+</html>
