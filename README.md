@@ -1,6 +1,6 @@
 # 🌙 Anima Insights - Dream Journal & Analysis Platform
 
-![Anima Insights](https://images.unsplash.com/photo-1536599524557-5f784dd53282?auto=format&fit=crop&q=80&w=800&h=400)
+![Anima Insights]
 
 A sophisticated dream journaling and interpretation platform powered by AI and inspired by Jungian psychology. Explore your unconscious mind through advanced dream analysis, connect with fellow dreamers, and unlock deep psychological insights.
 
