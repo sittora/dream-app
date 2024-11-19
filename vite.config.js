@@ -5,6 +5,17 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    port: 3000,
+    host: true,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -16,11 +27,6 @@ export default defineConfig({
       '@services': path.resolve(__dirname, './src/services'),
       '@db': path.resolve(__dirname, './src/db'),
     },
-  },
-  server: {
-    port: 3000,
-    host: true,
-    strictPort: true,
   },
   build: {
     outDir: 'dist',
@@ -34,5 +40,12 @@ export default defineConfig({
         },
       },
     },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.js'],
+    include: ['./src/**/*.{test,spec}.js'],
+    exclude: ['./e2e/**/*', './node_modules/**/*'],
   },
 });

@@ -18,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const login = useCallback(async (email: string, password: string, mfaCode?: string) => {
     try {
@@ -113,6 +114,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  const socialLogin = useCallback(async (provider: 'google' | 'facebook' | 'twitter', token: string) => {
+    try {
+      const result = await authService.socialLogin({ provider, token });
+      
+      if (result.user) {
+        setUser(result.user);
+      }
+      
+      localStorage.setItem('accessToken', result.accessToken);
+      localStorage.setItem('refreshToken', result.refreshToken);
+      sessionStorage.setItem('isAuthenticated', 'true');
+      
+      setIsAuthenticated(true);
+      return { success: true };
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const sendVerificationEmail = useCallback(async () => {
+    if (!user?.email) return;
+    
+    try {
+      await authService.sendVerificationEmail(user.email);
+      return { success: true };
+    } catch (error) {
+      throw error;
+    }
+  }, [user]);
+
+  const verifyEmail = useCallback(async (token: string) => {
+    if (!user?.email) return;
+    
+    try {
+      await authService.verifyEmail({ email: user.email, token });
+      setIsEmailVerified(true);
+      setUser(prev => prev ? { ...prev, emailVerified: true } : null);
+      return { success: true };
+    } catch (error) {
+      throw error;
+    }
+  }, [user]);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -156,12 +200,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated,
     isLoading,
     user,
+    isEmailVerified,
     login,
     logout,
+    socialLogin,
     refreshToken,
     updateUser,
     deleteAccount,
-    exportData
+    exportData,
+    sendVerificationEmail,
+    verifyEmail
   };
 
   return (
