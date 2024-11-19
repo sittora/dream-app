@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Record Dreams - Anima Insights</title>
     <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/styles/record.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dark-theme">
     <nav class="navbar">
@@ -31,7 +32,7 @@
     <main class="page-content">
         <section class="record-dreams">
             <div class="page-header">
-                <div class="header-icon record-icon">
+                <div class="header-icon">
                     <i class="fas fa-feather-alt"></i>
                     <i class="fas fa-book"></i>
                     <i class="fas fa-pen-nib"></i>
@@ -44,34 +45,94 @@
                 <form id="dreamRecordForm">
                     <div class="form-group">
                         <label for="dreamTitle">Dream Title</label>
-                        <input type="text" id="dreamTitle" name="dreamTitle" placeholder="Enter a title for your dream..." required>
+                        <input type="text" id="dreamTitle" name="dreamTitle" placeholder="Give your dream a meaningful title..." required>
                     </div>
 
                     <div class="form-group">
                         <label for="dreamDate">Date of Dream</label>
-                        <input type="date" id="dreamDate" name="dreamDate" required>
+                        <div class="calendar-wrapper">
+                            <input type="text" id="dreamDate" class="calendar-input" readonly placeholder="Select date..." required>
+                            <button type="button" class="calendar-toggle">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                            <div class="calendar-dropdown">
+                                <div class="calendar-header">
+                                    <div class="calendar-selectors">
+                                        <div class="select-wrapper">
+                                            <select class="month-select" aria-label="Select month">
+                                                <option value="0">January</option>
+                                                <option value="1">February</option>
+                                                <option value="2">March</option>
+                                                <option value="3">April</option>
+                                                <option value="4">May</option>
+                                                <option value="5">June</option>
+                                                <option value="6">July</option>
+                                                <option value="7">August</option>
+                                                <option value="8">September</option>
+                                                <option value="9">October</option>
+                                                <option value="10">November</option>
+                                                <option value="11">December</option>
+                                            </select>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="select-wrapper">
+                                            <select class="year-select" aria-label="Select year">
+                                                <!-- Years will be populated by JavaScript -->
+                                            </select>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="calendar-navigation">
+                                        <button type="button" class="calendar-nav" id="prevMonth" aria-label="Previous month">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button type="button" class="calendar-nav" id="nextMonth" aria-label="Next month">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="calendar-body">
+                                    <div class="calendar-weekdays">
+                                        <div class="calendar-weekday">Sun</div>
+                                        <div class="calendar-weekday">Mon</div>
+                                        <div class="calendar-weekday">Tue</div>
+                                        <div class="calendar-weekday">Wed</div>
+                                        <div class="calendar-weekday">Thu</div>
+                                        <div class="calendar-weekday">Fri</div>
+                                        <div class="calendar-weekday">Sat</div>
+                                    </div>
+                                    <div class="calendar-grid">
+                                        <!-- Calendar days will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="dreamContent">Dream Description</label>
-                        <textarea id="dreamContent" name="dreamContent" rows="6" placeholder="Describe your dream in detail..." required></textarea>
+                        <textarea id="dreamContent" name="dreamContent" rows="6" 
+                            placeholder="Describe your dream in detail... What did you see, feel, or experience?" required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="dreamMood">Mood</label>
-                        <select id="dreamMood" name="dreamMood">
-                            <option value="">Select mood...</option>
-                            <option value="peaceful">Peaceful</option>
-                            <option value="anxious">Anxious</option>
-                            <option value="mysterious">Mysterious</option>
-                            <option value="joyful">Joyful</option>
-                            <option value="melancholic">Melancholic</option>
+                        <label for="dreamMood">Dream Mood</label>
+                        <select id="dreamMood" name="dreamMood" required>
+                            <option value="">Select the predominant mood...</option>
+                            <option value="peaceful">Peaceful & Serene</option>
+                            <option value="anxious">Anxious & Unsettled</option>
+                            <option value="mysterious">Mysterious & Enigmatic</option>
+                            <option value="joyful">Joyful & Uplifting</option>
+                            <option value="melancholic">Melancholic & Reflective</option>
+                            <option value="adventurous">Adventurous & Exciting</option>
+                            <option value="fearful">Fearful & Threatening</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="dreamSymbols">Key Symbols (comma-separated)</label>
-                        <input type="text" id="dreamSymbols" name="dreamSymbols" placeholder="e.g., water, moon, forest...">
+                        <label for="dreamSymbols">Key Symbols</label>
+                        <input type="text" id="dreamSymbols" name="dreamSymbols" 
+                            placeholder="Enter significant symbols or motifs (e.g., water, moon, forest...)">
                     </div>
 
                     <div class="form-group">
@@ -79,24 +140,27 @@
                         <div class="dream-types">
                             <label class="dream-type">
                                 <input type="radio" name="dreamType" value="lucid">
-                                Lucid Dream
+                                <span>Lucid Dream</span>
                             </label>
                             <label class="dream-type">
                                 <input type="radio" name="dreamType" value="recurring">
-                                Recurring Dream
+                                <span>Recurring Dream</span>
                             </label>
                             <label class="dream-type">
                                 <input type="radio" name="dreamType" value="nightmare">
-                                Nightmare
+                                <span>Nightmare</span>
                             </label>
                             <label class="dream-type">
                                 <input type="radio" name="dreamType" value="prophetic">
-                                Prophetic Dream
+                                <span>Prophetic Dream</span>
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Record Dream</button>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-feather-alt"></i>
+                        Record Dream
+                    </button>
                 </form>
             </div>
         </section>
@@ -108,20 +172,21 @@
                 <h3>Navigation</h3>
                 <a href="/privacy">Privacy Policy</a>
                 <a href="/terms">Terms of Service</a>
-                <a href="/help">Help Center</a>
+                <a href="/faq">FAQ</a>
             </div>
             <div class="footer-section">
                 <h3>Connect</h3>
-                <div class="social-links">
-                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                </div>
+                <a href="/community">Community</a>
+                <a href="/blog">Blog</a>
+                <a href="/newsletter">Newsletter</a>
             </div>
             <div class="footer-section">
-                <h3>Contact</h3>
-                <a href="mailto:contact@animainsights.com">contact@animainsights.com</a>
-                <a href="/feedback">Send Feedback</a>
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                </div>
             </div>
         </div>
         <div class="footer-bottom">
@@ -129,7 +194,14 @@
         </div>
     </footer>
 
-    <script src="/src/main.js" type="module"></script>
-    <script src="/src/pages/record.js" type="module"></script>
+    <script src="/src/scripts/buttons.js"></script>
+    <script src="../scripts/calendar.js"></script>
+    <script>
+        // Initialize the form with today's date
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dreamDate').value = today;
+        });
+    </script>
 </body>
 </html>
