@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/src/styles/main.css">
     <link rel="stylesheet" href="/src/styles/auth.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -21,122 +21,135 @@
     <main class="signup-page">
         <div class="signup-container">
             <div class="signup-header">
-                <h1 class="font-cinzel text-3xl text-center mb-6">Begin Your Journey</h1>
-                <p class="text-center text-gray-400 mb-8">Create your account to unlock the mysteries of your dreams</p>
+                <h1>Begin Your Journey</h1>
+                <p>Create your account to unlock the mysteries of your dreams</p>
             </div>
 
-            <form id="signupForm" class="signup-form">
+            <form id="signupForm" class="signup-form" novalidate>
                 <div class="form-section personal-info">
-                    <h2 class="font-cinzel text-xl mb-4">Personal Information</h2>
+                    <h2>Personal Information</h2>
                     
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="text" id="firstName" name="firstName" required class="auth-input" placeholder=" ">
+                            <input type="text" id="firstName" name="firstName" required class="auth-input" placeholder=" "
+                                   aria-label="First Name" aria-required="true">
                             <label for="firstName" class="floating-label">First Name</label>
-                            <div class="input-error"></div>
+                            <div class="input-error" aria-live="polite"></div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="text" id="lastName" name="lastName" required class="auth-input" placeholder=" ">
+                            <input type="text" id="lastName" name="lastName" required class="auth-input" placeholder=" "
+                                   aria-label="Last Name" aria-required="true">
                             <label for="lastName" class="floating-label">Last Name</label>
-                            <div class="input-error"></div>
+                            <div class="input-error" aria-live="polite"></div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="email" id="email" name="email" required class="auth-input" placeholder=" ">
+                            <input type="email" id="email" name="email" required class="auth-input" placeholder=" "
+                                   aria-label="Email Address" aria-required="true">
                             <label for="email" class="floating-label">Email Address</label>
-                            <div class="input-error"></div>
+                            <div class="input-error" aria-live="polite"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-section security">
-                    <h2 class="font-cinzel text-xl mb-4">Security</h2>
+                    <h2>Security</h2>
                     
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="password" id="password" name="password" required class="auth-input" placeholder=" ">
+                            <input type="password" id="password" name="password" required class="auth-input" placeholder=" "
+                                   aria-label="Password" aria-required="true"
+                                   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$">
                             <label for="password" class="floating-label">Password</label>
-                            <button type="button" class="password-toggle">
-                                <i class="fas fa-eye"></i>
+                            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
                             </button>
-                            <div class="input-error"></div>
+                            <div class="input-error" aria-live="polite"></div>
                         </div>
-                        <div class="password-strength-meter mt-2">
+                        <div class="password-strength-meter" aria-label="Password strength indicator">
                             <div class="strength-bar"></div>
-                            <p class="strength-text text-xs text-gray-400"></p>
+                            <p class="strength-text" aria-live="polite"></p>
+                        </div>
+                        <div class="password-requirements">
+                            <p>Password must contain:</p>
+                            <ul>
+                                <li class="req-length">At least 8 characters</li>
+                                <li class="req-letter">At least one letter</li>
+                                <li class="req-number">At least one number</li>
+                                <li class="req-special">At least one special character</li>
+                            </ul>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="password" id="confirmPassword" name="confirmPassword" required class="auth-input" placeholder=" ">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required class="auth-input" placeholder=" "
+                                   aria-label="Confirm Password" aria-required="true">
                             <label for="confirmPassword" class="floating-label">Confirm Password</label>
-                            <button type="button" class="password-toggle">
-                                <i class="fas fa-eye"></i>
+                            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
                             </button>
-                            <div class="input-error"></div>
+                            <div class="input-error" aria-live="polite"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-section preferences">
-                    <h2 class="font-cinzel text-xl mb-4">Preferences</h2>
+                    <h2>Preferences</h2>
                     
                     <div class="form-group">
                         <label class="block mb-2">Dream Journal Privacy</label>
-                        <div class="radio-group">
+                        <div class="radio-group" role="radiogroup" aria-label="Dream Journal Privacy Settings">
                             <label class="radio-label">
-                                <input type="radio" name="privacy" value="private" checked>
+                                <input type="radio" name="privacy" value="private" checked
+                                       aria-label="Private journal">
                                 <span>Private</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="privacy" value="public">
+                                <input type="radio" name="privacy" value="public"
+                                       aria-label="Public journal">
                                 <span>Public</span>
                             </label>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="newsletter" checked>
-                            <span>Receive insights and updates about dream interpretation</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="terms" required>
-                            <span>I agree to the <a href="/terms" class="text-purple-400 hover:text-purple-300">Terms of Service</a> and <a href="/privacy" class="text-purple-400 hover:text-purple-300">Privacy Policy</a></span>
-                        </label>
-                    </div>
                 </div>
 
-                <button type="submit" class="btn-primary mt-6">
-                    <span>Create Account</span>
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-
-                <div class="divider">
-                    <span>or</span>
+                <div class="terms-checkbox">
+                    <label class="custom-checkbox" for="terms">
+                        <input type="checkbox" id="terms" name="terms" required
+                               aria-label="Accept terms and conditions">
+                        <i class="fas fa-check" aria-hidden="true"></i>
+                    </label>
+                    <span>I agree to the <a href="/terms" class="text-purple-400 hover:text-purple-300">Terms and Conditions</a></span>
                 </div>
 
                 <div class="social-auth">
-                    <button type="button" class="btn-social google">
-                        <i class="fab fa-google"></i>
-                        <span>Continue with Google</span>
+                    <p class="text-center mb-4">Or sign up with</p>
+                    <button type="button" class="social-btn google-btn" aria-label="Sign up with Google">
+                        <img src="/public/assets/images/google-icon.svg" alt="" aria-hidden="true">
+                        <span>Google</span>
                     </button>
-                    <button type="button" class="btn-social apple">
-                        <i class="fab fa-apple"></i>
-                        <span>Continue with Apple</span>
+                    <button type="button" class="social-btn facebook-btn" aria-label="Sign up with Facebook">
+                        <img src="/public/assets/images/facebook-icon.svg" alt="" aria-hidden="true">
+                        <span>Facebook</span>
+                    </button>
+                    <button type="button" class="social-btn twitter-btn" aria-label="Sign up with Twitter">
+                        <img src="/public/assets/images/twitter-icon.svg" alt="" aria-hidden="true">
+                        <span>Twitter</span>
                     </button>
                 </div>
 
-                <p class="text-center text-gray-400 mt-6">
+                <button type="submit" class="btn-primary" aria-label="Create account">
+                    <span>Create Account</span>
+                    <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
+                </button>
+
+                <p class="text-center mt-4">
                     Already have an account? 
                     <a href="/src/pages/login.html" class="text-purple-400 hover:text-purple-300">Sign In</a>
                 </p>
