@@ -1,10 +1,17 @@
 import { createBrowserRouter } from 'react-router-dom';
-import AccountSettings from './components/account/AccountSettings';
+import AccountSettings from './pages/AccountSettings';
 import ProtectedRoute from './components/ProtectedRoute';
-import DreamForm from './components/DreamForm';
-import LoginPage from './components/auth/LoginPage';
-import RegisterPage from './components/auth/RegisterPage';
+import LoginPage from './pages/Login';
+import RegisterPage from './pages/Register';
 import Layout from './components/Layout';
+import ForgotPassword from './pages/ForgotPassword';
+import JungianAnalysis from './pages/JungianAnalysis';
+import Oracle from './pages/Oracle';
+import Resources from './pages/Resources';
+import UserAccount from './pages/UserAccount';
+import DreamWeb from './pages/DreamWeb';
+import RecordDreams from './pages/RecordDreams';
+import Home from './pages/Home';
 
 export const router = createBrowserRouter([
   {
@@ -13,9 +20,49 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
+        element: <Home />,
+      },
+      {
+        path: '/record',
         element: (
           <ProtectedRoute>
-            <DreamForm />
+            <RecordDreams />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/analysis',
+        element: (
+          <ProtectedRoute>
+            <JungianAnalysis />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/oracle',
+        element: (
+          <ProtectedRoute>
+            <Oracle />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/dreamweb',
+        element: (
+          <ProtectedRoute>
+            <DreamWeb />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/resources',
+        element: <Resources />,
+      },
+      {
+        path: '/account',
+        element: (
+          <ProtectedRoute>
+            <UserAccount />
           </ProtectedRoute>
         ),
       },
@@ -36,5 +83,9 @@ export const router = createBrowserRouter([
   {
     path: '/register',
     element: <RegisterPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />,
   },
 ]);

@@ -4,6 +4,8 @@ export interface User {
   id: string;
   email: string;
   username: string;
+  emailVerified: boolean;
+  authProvider?: 'email' | 'google' | 'facebook' | 'twitter';
   profile?: {
     displayName?: string;
     bio?: string;
@@ -45,12 +47,16 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
+  isEmailVerified: boolean;
   login: (email: string, password: string, mfaCode?: string) => Promise<any>;
   logout: () => Promise<void>;
+  socialLogin: (provider: 'google' | 'facebook' | 'twitter', token: string) => Promise<any>;
   refreshToken: () => Promise<boolean>;
   updateUser: (data: Partial<User>) => Promise<void>;
   deleteAccount: () => Promise<void>;
   exportData: () => Promise<Blob>;
+  sendVerificationEmail: () => Promise<{ success: boolean } | undefined>;
+  verifyEmail: (token: string) => Promise<{ success: boolean } | undefined>;
 }
 
 export const emailSchema = z.string().email('Invalid email format');

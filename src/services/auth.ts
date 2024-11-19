@@ -32,6 +32,16 @@ interface AuthResponse {
   user?: User;
 }
 
+interface SocialAuthData {
+  provider: 'google' | 'facebook' | 'twitter';
+  token: string;
+}
+
+interface EmailVerificationData {
+  email: string;
+  token: string;
+}
+
 class AuthService {
   async register(data: RegisterData): Promise<void> {
     try {
@@ -166,6 +176,58 @@ class AuthService {
     }
   }
 
+  async sendVerificationEmail(email: string): Promise<void> {
+    try {
+      const token = await this.generateVerificationToken(email);
+      // TODO: Implement email sending service
+      logger.info('Verification email sent', { email });
+    } catch (error) {
+      logger.error('Failed to send verification email', { error });
+      throw error;
+    }
+  }
+
+  async verifyEmail({ email, token }: EmailVerificationData): Promise<void> {
+    try {
+      const isValid = await this.verifyToken(token);
+      if (!isValid) {
+        throw new Error('Invalid verification token');
+      }
+      // TODO: Update user verification status in database
+      logger.info('Email verified successfully', { email });
+    } catch (error) {
+      logger.error('Email verification failed', { error });
+      throw error;
+    }
+  }
+
+  async socialLogin(data: SocialAuthData): Promise<AuthResponse> {
+    try {
+      await rateLimit.checkLimit(data.provider);
+      
+      // Verify the social token with the respective provider
+      const socialUser = await this.verifySocialToken(data);
+      
+      // Find or create user in our database
+      const user = await this.findOrCreateSocialUser(socialUser);
+      
+      // Generate tokens
+      const accessToken = await this.generateAccessToken(user.id);
+      const refreshToken = await this.generateRefreshToken(user.id);
+      
+      logger.info('Social login successful', { provider: data.provider });
+      
+      return {
+        accessToken,
+        refreshToken,
+        user,
+      };
+    } catch (error) {
+      logger.error('Social login failed', { error });
+      throw error;
+    }
+  }
+
   private async generateAccessToken(userId: string): Promise<string> {
     return new SignJWT({ sub: userId })
       .setProtectedHeader({ alg: 'HS256' })
@@ -178,6 +240,45 @@ class AuthService {
       .setProtectedHeader({ alg: 'HS256' })
       .setExpirationTime('7d')
       .sign(JWT_SECRET);
+  }
+
+  private async generateVerificationToken(email: string): Promise<string> {
+    const token = new SignJWT({ email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('24h')
+      .sign(JWT_SECRET);
+    return token;
+  }
+
+  private async verifyToken(token: string): Promise<boolean> {
+    try {
+      await jwtVerify(token, JWT_SECRET);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async verifySocialToken(data: SocialAuthData): Promise<any> {
+    // TODO: Implement social token verification for each provider
+    switch (data.provider) {
+      case 'google':
+        // Verify Google token
+        break;
+      case 'facebook':
+        // Verify Facebook token
+        break;
+      case 'twitter':
+        // Verify Twitter token
+        break;
+      default:
+        throw new Error('Unsupported social provider');
+    }
+  }
+
+  private async findOrCreateSocialUser(socialUser: any): Promise<User> {
+    // TODO: Implement user creation/retrieval logic
+    return {} as User;
   }
 
   async updateUser(userId: string, data: Partial<User>): Promise<void> {
