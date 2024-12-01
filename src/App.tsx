@@ -1,18 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { routes } from './config/routes';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import RecordDreams from './pages/RecordDreams';
-import JungianAnalysis from './pages/JungianAnalysis';
-import DreamWeb from './pages/DreamWeb';
-import Oracle from './pages/Oracle';
-import Resources from './pages/Resources';
-import UserAccount from './pages/UserAccount';
-import AccountSettings from './pages/AccountSettings';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotFound from './pages/NotFound';
 
 const App = () => {
   return (
@@ -23,58 +15,38 @@ const App = () => {
         
         <main className="container mx-auto px-4 py-8 flex-1">
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route
-              path="/record"
-              element={
-                <ProtectedRoute>
-                  <RecordDreams />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analysis"
-              element={
-                <ProtectedRoute>
-                  <JungianAnalysis />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dreamweb"
-              element={
-                <ProtectedRoute>
-                  <DreamWeb />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/oracle"
-              element={
-                <ProtectedRoute>
-                  <Oracle />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/account"
-              element={
-                <ProtectedRoute>
-                  <UserAccount />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/account/settings"
-              element={
-                <ProtectedRoute>
-                  <AccountSettings />
-                </ProtectedRoute>
-              }
-            />
+            {/* Public Routes */}
+            {routes.public.map(({ path, element: Element }) => (
+              <Route key={path} path={path} element={<Element />} />
+            ))}
+
+            {/* Protected Routes */}
+            {routes.protected.map(({ path, element: Element, children }) => (
+              <React.Fragment key={path}>
+                <Route
+                  path={path}
+                  element={
+                    <ProtectedRoute>
+                      <Element />
+                    </ProtectedRoute>
+                  }
+                />
+                {children?.map(({ path: childPath, element: ChildElement }) => (
+                  <Route
+                    key={childPath}
+                    path={childPath}
+                    element={
+                      <ProtectedRoute>
+                        <ChildElement />
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
+              </React.Fragment>
+            ))}
+
+            {/* 404 Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 
