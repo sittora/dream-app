@@ -3,15 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Sparkles, Bot, Moon, Brain, Book, Loader } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import BackButton from '../components/BackButton';
+import { useNavigate } from 'react-router-dom';
+import { oracleApi } from '../services/api';
 
 interface Message {
   id: string;
   role: 'user' | 'oracle' | 'system';
   content: string;
-  archetype?: string;
-  symbols?: string[];
-  timestamp: Date;
-  isLoading?: boolean;
+  timestamp: number;
 }
 
 const archetypes = [
@@ -25,13 +24,15 @@ const Oracle = () => {
     id: '0',
     role: 'system',
     content: 'Welcome to The Oracle. I am your guide through the depths of the unconscious mind, trained in Jungian psychology and archetypal analysis. Share your dreams, and together we shall unveil their hidden meanings.',
-    timestamp: new Date(),
+    timestamp: Date.now(),
   }]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [activeArchetype, setActiveArchetype] = useState<string>('The Shadow');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isThinking, setIsThinking] = useState(false);
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,54 +42,75 @@ const Oracle = () => {
     scrollToBottom();
   }, [messages]);
 
-  const simulateAIResponse = async (userMessage: string) => {
-    // In production, this would be replaced with actual AI model API calls
-    setIsThinking(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const symbols = ['water', 'bridge', 'darkness', 'light', 'serpent', 'tree'];
-    const randomSymbols = symbols
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 2 + Math.floor(Math.random() * 3));
-
-    const responses = [
-      `In your dream, I sense the presence of ${randomSymbols.join(', ')}. These symbols suggest a deep connection to the collective unconscious. The ${activeArchetype} archetype manifests strongly here, indicating a process of psychological transformation.`,
-      `Through the lens of Jungian analysis, your dream reveals significant archetypal patterns. The ${randomSymbols.join(' and ')} symbolize the tension between conscious and unconscious forces. ${activeArchetype} appears as a guiding force in this psychological landscape.`,
-      `Your dream's imagery, particularly the ${randomSymbols.join(', ')}, speaks to the process of individuation that Jung described. The presence of ${activeArchetype} suggests you're engaging with profound aspects of your psyche.`
-    ];
-
-    const response = responses[Math.floor(Math.random() * responses.length)];
-    
-    setMessages(prev => [...prev, {
-      id: Date.now().toString(),
-      role: 'oracle',
-      content: response,
-      archetype: activeArchetype,
-      symbols: randomSymbols,
-      timestamp: new Date(),
-    }]);
-    
-    setIsThinking(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isThinking) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
     setInput('');
     
+    // Add user message immediately
     setMessages(prev => [...prev, {
       id: Date.now().toString(),
       role: 'user',
       content: userMessage,
-      timestamp: new Date(),
+      timestamp: Date.now(),
     }]);
 
-    await simulateAIResponse(userMessage);
+    setIsLoading(true);
+    setIsTyping(true);
+
+    try {
+      // Send message to Oracle API
+      const response = await oracleApi.sendMessage(userMessage);
+      
+      // Add Oracle's response
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'oracle',
+        content: response.message,
+        timestamp: Date.now(),
+      }]);
+    } catch (err: any) {
+      if (err.message.includes('Rate limit')) {
+        setError(err.message);
+      } else {
+        setMessages(prev => [...prev, {
+          id: (Date.now() + 1).toString(),
+          role: 'system',
+          content: 'I apologize, but I am unable to process your request at the moment. Please try again later.',
+          timestamp: Date.now(),
+        }]);
+      }
+    } finally {
+      setIsLoading(false);
+      setIsTyping(false);
+    }
   };
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+        <div className="bg-gray-900/50 p-8 rounded-lg backdrop-blur-sm max-w-2xl w-full text-center">
+          <Sparkles className="w-16 h-16 mx-auto mb-6 text-purple-500" />
+          <h1 className="text-2xl font-bold mb-4 text-purple-300">The Oracle is Resting</h1>
+          <p className="text-gray-300 mb-6">{error}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors mr-4"
+          >
+            Return Home
+          </button>
+          <button
+            onClick={() => setError(null)}
+            className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative max-w-4xl mx-auto">
@@ -96,136 +118,90 @@ const Oracle = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-8 mt-12"
+        className="bg-gray-900/50 rounded-lg backdrop-blur-sm p-6"
       >
-        <h1 className="font-cinzel text-3xl text-burgundy flex items-center justify-center gap-3">
-          <Sparkles className="w-8 h-8" />
-          The Oracle
-        </h1>
-        <p className="text-gray-400 mt-2">
-          Consult the AI interpreter trained in Jungian psychology and alchemical symbolism
-        </p>
-      </motion.div>
+        <div className="flex items-center justify-center mb-6">
+          <Sparkles className="w-8 h-8 text-purple-500 mr-3" />
+          <h1 className="text-2xl font-bold text-purple-300">The Dream Oracle</h1>
+        </div>
 
-      <div className="grid md:grid-cols-4 gap-6">
-        <div className="md:col-span-1">
-          <div className="dream-card">
-            <h3 className="font-cinzel text-lg mb-4 text-burgundy">Active Archetype</h3>
-            <div className="space-y-2">
-              {archetypes.map(({ name, icon: Icon }) => (
-                <button
-                  key={name}
-                  onClick={() => setActiveArchetype(name)}
-                  className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all ${
-                    activeArchetype === name
-                      ? 'bg-burgundy/20 text-burgundy'
-                      : 'hover:bg-burgundy/10 text-gray-400'
+        <div className="space-y-4 mb-6">
+          <AnimatePresence mode="popLayout">
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className={`flex ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-lg p-4 ${
+                    message.role === 'user'
+                      ? 'bg-purple-600 text-white ml-4'
+                      : message.role === 'system'
+                      ? 'bg-gray-700 text-gray-200'
+                      : 'bg-gray-800 text-gray-200'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-sm">{name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+                  {message.role !== 'user' && (
+                    <div className="flex items-center mb-2">
+                      {message.role === 'system' ? (
+                        <Bot className="w-5 h-5 mr-2 text-gray-400" />
+                      ) : (
+                        <Sparkles className="w-5 h-5 mr-2 text-purple-500" />
+                      )}
+                      <span className="text-sm font-medium">
+                        {message.role === 'system' ? 'System' : 'Oracle'}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-sm">{message.content}</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {isTyping && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-start"
+            >
+              <div className="bg-gray-800 rounded-lg p-4">
+                <div className="flex space-x-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100" />
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-200" />
+                </div>
+              </div>
+            </motion.div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
-        <div className="md:col-span-3 dream-card min-h-[600px] flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <AnimatePresence mode="popLayout">
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] p-4 rounded-lg ${
-                      message.role === 'user'
-                        ? 'bg-burgundy/20 ml-auto'
-                        : message.role === 'system'
-                        ? 'bg-mystic-900/50 text-center w-full'
-                        : 'bg-mystic-900/50'
-                    }`}
-                  >
-                    {message.role === 'oracle' && (
-                      <div className="flex items-center gap-2 mb-2 text-burgundy">
-                        <Bot className="w-5 h-5" />
-                        <span className="text-sm font-cinzel">{message.archetype}</span>
-                      </div>
-                    )}
-                    <p className="text-gray-200 leading-relaxed">{message.content}</p>
-                    {message.symbols && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {message.symbols.map((symbol, index) => (
-                          <span
-                            key={index}
-                            className="text-xs px-2 py-1 rounded-full bg-burgundy/10 text-burgundy border border-burgundy/20"
-                          >
-                            {symbol}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-              {isThinking && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex gap-2 items-center text-gray-400"
-                >
-                  <Bot className="w-5 h-5" />
-                  <div className="flex gap-1">
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, delay: 0 }}
-                      className="w-2 h-2 bg-burgundy/50 rounded-full"
-                    />
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
-                      className="w-2 h-2 bg-burgundy/50 rounded-full"
-                    />
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.4 }}
-                      className="w-2 h-2 bg-burgundy/50 rounded-full"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
-          </div>
-
-          <form onSubmit={handleSubmit} className="border-t border-burgundy/20 p-4">
-            <div className="flex gap-2">
-              <TextareaAutosize
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Describe your dream to the Oracle..."
-                className="input-field min-h-[44px] pt-3"
-                maxRows={5}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isThinking}
-                className="btn-primary"
-              >
-                {isThinking ? (
-                  <Loader className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+        <form onSubmit={handleSubmit} className="relative">
+          <TextareaAutosize
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Share your dream with the Oracle..."
+            className="w-full bg-gray-800 text-white rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+            maxRows={5}
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || isLoading}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-400 disabled:text-gray-500 disabled:cursor-not-allowed p-2"
+          >
+            {isLoading ? (
+              <Loader className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 };

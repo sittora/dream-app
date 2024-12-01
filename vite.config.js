@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,6 +15,21 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
+    },
+    middleware: [
+      (req, res, next) => {
+        // If the request is for a static file that exists, serve it
+        const filePath = path.join(__dirname, 'dist', req.url);
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          return next();
+        }
+        // Otherwise, serve index.html for client-side routing
+        req.url = '/index.html';
+        next();
+      },
+    ],
+    historyApiFallback: {
+      disableDotRule: true,
     },
   },
   resolve: {
