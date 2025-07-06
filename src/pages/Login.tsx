@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 import { z } from 'zod';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
-export default function Login() {
+const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -25,13 +25,8 @@ export default function Login() {
     try {
       setIsLoading(true);
       const validatedData = loginSchema.parse(formData);
-      const result = await login(validatedData.email, validatedData.password);
-      
-      if (result.success) {
-        const redirectTo = sessionStorage.getItem('redirectTo') || '/';
-        sessionStorage.removeItem('redirectTo');
-        navigate(redirectTo);
-      }
+      await login(validatedData.email, validatedData.password);
+      navigate('/');
     } catch (err) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
@@ -130,4 +125,6 @@ export default function Login() {
       </motion.div>
     </div>
   );
-}
+};
+
+export default Login;

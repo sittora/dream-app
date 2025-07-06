@@ -7,20 +7,4 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-  server: {
-    port: 3000,
-    headers: {
-      'Content-Type': 'application/javascript',
-    },
-  },
-  build: {
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-        },
-      },
-    },
-  },
 });

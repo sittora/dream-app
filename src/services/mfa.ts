@@ -1,6 +1,5 @@
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
-import logger from '../logger'; // assuming logger is imported from another file
 
 const APP_NAME = 'Anima Insights';
 
@@ -19,12 +18,9 @@ export async function generateTOTP(userEmail: string) {
 
 export function verifyTOTP(token: string, secret: string): boolean {
   try {
-    if (!token || !secret) {
-      throw new Error('Invalid TOTP parameters');
-    }
     return authenticator.verify({ token, secret });
   } catch (error) {
-    logger.error('Failed to verify TOTP:', { error });
+    console.error('Failed to verify TOTP:', error);
     return false;
   }
 }

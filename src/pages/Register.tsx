@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, UserPlus, AlertCircle, Check, X } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react';
 import { z } from 'zod';
-import { useAuth } from '../contexts/AuthContext';
-import { SocialButton } from '../components/auth/SocialButton';
-import { PasswordStrength } from '../components/auth/PasswordStrength';
+import { register } from '../services/auth';
 
 const registerSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -17,9 +15,6 @@ const registerSchema = z.object({
     .regex(/[0-9]/, 'Password must contain at least one number')
     .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -27,18 +22,15 @@ const registerSchema = z.object({
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register, socialLogin } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    acceptTerms: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [verificationSent, setVerificationSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +40,7 @@ const Register = () => {
       setIsLoading(true);
       const validatedData = registerSchema.parse(formData);
       await register(validatedData);
-      setVerificationSent(true);
+      navigate('/login');
     } catch (err) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
@@ -57,48 +49,10 @@ const Register = () => {
       } else {
         setError('An unexpected error occurred');
       }
+    } finally {
       setIsLoading(false);
     }
   };
-
-  const handleSocialLogin = async (provider: 'google' | 'facebook' | 'twitter') => {
-    try {
-      setIsLoading(true);
-      setError('');
-      await socialLogin(provider);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to login with social provider');
-      setIsLoading(false);
-    }
-  };
-
-  if (verificationSent) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md text-center space-y-4"
-        >
-          <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-            <Check className="w-8 h-8 text-green-500" />
-          </div>
-          <h2 className="text-2xl font-semibold text-burgundy">Verify Your Email</h2>
-          <p className="text-gray-400">
-            We've sent a verification link to <span className="text-white">{formData.email}</span>.
-            Please check your inbox and click the link to complete your registration.
-          </p>
-          <button
-            onClick={() => navigate('/login')}
-            className="btn-secondary w-full mt-4"
-          >
-            Go to Login
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -110,33 +64,6 @@ const Register = () => {
         <div className="text-center mb-8">
           <h1 className="title-font text-4xl text-burgundy mb-2">Join the Journey</h1>
           <p className="text-gray-400">Create your dream explorer account</p>
-        </div>
-
-        <div className="flex gap-4 mb-8">
-          <SocialButton
-            provider="google"
-            onClick={() => handleSocialLogin('google')}
-            disabled={isLoading}
-          />
-          <SocialButton
-            provider="facebook"
-            onClick={() => handleSocialLogin('facebook')}
-            disabled={isLoading}
-          />
-          <SocialButton
-            provider="twitter"
-            onClick={() => handleSocialLogin('twitter')}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="relative mb-8">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-600"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-900 text-gray-400">Or continue with</span>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="dream-card space-y-6">
@@ -173,29 +100,26 @@ const Register = () => {
 
           <div>
             <label className="block text-sm font-medium mb-1">Password</label>
-            <div className="space-y-2">
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="input-field pr-10"
-                  required
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              <PasswordStrength password={formData.password} />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="input-field pr-10"
+                required
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
 
@@ -209,26 +133,6 @@ const Register = () => {
               required
               autoComplete="new-password"
             />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="terms"
-              checked={formData.acceptTerms}
-              onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-burgundy focus:ring-burgundy"
-            />
-            <label htmlFor="terms" className="text-sm text-gray-400">
-              I accept the{' '}
-              <Link to="/terms" className="text-burgundy hover:text-burgundy/80">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link to="/privacy" className="text-burgundy hover:text-burgundy/80">
-                Privacy Policy
-              </Link>
-            </label>
           </div>
 
           <button

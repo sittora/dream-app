@@ -18,7 +18,6 @@ const DreamForm = ({ onClose, onSave }: DreamFormProps) => {
     visibility: 'private' as const,
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +43,7 @@ const DreamForm = ({ onClose, onSave }: DreamFormProps) => {
       onClose();
     } catch (error) {
       console.error('Failed to analyze dream:', error);
-      setError('Failed to analyze dream. Please try again.');
+    } finally {
       setIsAnalyzing(false);
     }
   };
@@ -164,9 +163,6 @@ const DreamForm = ({ onClose, onSave }: DreamFormProps) => {
               {isAnalyzing ? 'Analyzing Dream...' : 'Save Dream'}
             </button>
           </div>
-          {error && (
-            <div className="text-red-500 text-sm mt-2">{error}</div>
-          )}
         </form>
       </div>
     </motion.div>

@@ -1,4 +1,4 @@
-import { BookOpen, Brain, Share2, Sparkles, Book, User, Settings } from 'lucide-react';
+import { BookOpen, Brain, Share2, Sparkles, Book, User } from 'lucide-react';
 
 export const navItems = [
   {
@@ -29,13 +29,6 @@ export const navItems = [
   {
     path: '/account',
     label: 'Account',
-    icon: User,
-    children: [
-      {
-        path: '/account/settings',
-        label: 'Settings',
-        icon: Settings
-      }
-    ]
+    icon: User
   }
 ];
