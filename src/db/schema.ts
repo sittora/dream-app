@@ -129,3 +129,8 @@ export const dbRelations = {
     engagement: many(engagement),
   })),
 };
+
+// Export aliases for backward compatibility
+export const userRelations = dbRelations;
+export const userEngagement = engagement;
+export const pointTransactions = points;

@@ -10,7 +10,16 @@ interface RankBadgeProps {
 }
 
 const RankBadge = ({ level, points, showProgress = false }: RankBadgeProps) => {
-  const currentRank = RANKS.findLast(rank => points >= rank.minPoints);
+  // Find current rank by iterating backwards through the ranks
+  const currentRank = (() => {
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+      if (points >= RANKS[i].minPoints) {
+        return RANKS[i];
+      }
+    }
+    return RANKS[0]; // Fallback to first rank
+  })();
+  
   const nextRank = RANKS.find(rank => points < rank.minPoints);
 
   const getIconForRank = (rankName: string) => {

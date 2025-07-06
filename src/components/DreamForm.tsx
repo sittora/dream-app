@@ -9,13 +9,21 @@ interface DreamFormProps {
   onSave: (dream: Omit<Dream, 'id'>) => void;
 }
 
+interface FormData {
+  title: string;
+  content: string;
+  mood: string;
+  symbols: string;
+  visibility: 'public' | 'private';
+}
+
 const DreamForm = ({ onClose, onSave }: DreamFormProps) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     content: '',
     mood: '',
     symbols: '',
-    visibility: 'private' as const,
+    visibility: 'private',
   });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -26,14 +34,24 @@ const DreamForm = ({ onClose, onSave }: DreamFormProps) => {
     const dreamData = {
       ...formData,
       date: new Date().toISOString().split('T')[0],
-      symbols: formData.symbols.split(',').map(s => s.trim()),
+      symbols: formData.symbols.split(',').map(s => s.trim()).filter(s => s.length > 0),
       likes: 0,
       saves: 0,
       comments: [],
+      authorId: '', // This should be set by the parent component
+      authorUsername: '', // This should be set by the parent component
+      liked: false,
+      shares: 0,
+      saved: false,
+      engagementScore: 0,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      views: 0,
     };
 
     try {
-      const analysis = await analyzeDream(dreamData as Dream);
+      const analysis = await analyzeDream(dreamData as unknown as Dream);
       
       onSave({
         ...dreamData,

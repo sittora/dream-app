@@ -1,105 +1,148 @@
-import React, { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { jwtVerify } from 'jose';
+import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { jwtVerify, SignJWT } from 'jose';
 import { authService } from '../services/auth';
-import { env } from '../config';
-import type { AuthContextType, User } from '../types/auth';
+import { logger } from '../services/logger';
+import type { User } from '../types';
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, username: string, password: string) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(async (email: string, password: string, mfaCode?: string) => {
+  const checkAuth = useCallback(async () => {
     try {
-      const result = await authService.login({ email, password, mfaCode });
-      
-      if (result.requiresMfa) {
-        return { requiresMfa: true };
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsLoading(false);
+        return;
       }
 
-      localStorage.setItem('accessToken', result.accessToken);
-      localStorage.setItem('refreshToken', result.refreshToken);
-      
-      setIsAuthenticated(true);
-      return { success: true };
+      const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.VITE_JWT_SECRET));
+      // Create a mock user from the token payload
+      const mockUser: User = {
+        id: payload.sub as string,
+        email: payload.email as string || '',
+        username: payload.username as string || '',
+        profileImage: undefined,
+        bio: undefined,
+        socialLinks: undefined,
+        dreamStats: {
+          totalDreams: 0,
+          publicDreams: 0,
+          privateDreams: 0,
+          totalLikes: 0,
+          totalComments: 0,
+          totalSaves: 0,
+        },
+        engagement: {
+          followers: [],
+          following: [],
+          blockedUsers: [],
+          notifications: [],
+        },
+        preferences: {
+          emailNotifications: true,
+          pushNotifications: true,
+          privateAccount: false,
+          showEngagementStats: true,
+          allowMessages: 'everyone',
+        },
+        points: 0,
+        level: 1,
+        insightRank: 'Dreamer Initiate',
+        friends: [],
+        dreamAnalysisCount: 0,
+      };
+      setUser(mockUser);
     } catch (error) {
-      throw error;
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    const deviceId = localStorage.getItem('deviceId');
-    if (deviceId) {
-      await authService.logout(deviceId);
-    }
-    
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('deviceId');
-    
-    setIsAuthenticated(false);
-    setUser(null);
-  }, []);
-
-  const refreshToken = useCallback(async () => {
-    const token = localStorage.getItem('refreshToken');
-    if (!token) return false;
-
-    try {
-      const { accessToken } = await authService.refreshToken(token);
-      localStorage.setItem('accessToken', accessToken);
-      return true;
-    } catch {
-      return false;
+      logger.error('Token verification failed', { error });
+      localStorage.removeItem('token');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          throw new Error('No token');
-        }
-
-        const { payload } = await jwtVerify(
-          token,
-          new TextEncoder().encode(env.JWT_SECRET)
-        );
-
-        setUser(payload as User);
-        setIsAuthenticated(true);
-      } catch (error) {
-        const refreshed = await refreshToken();
-        if (!refreshed) {
-          await logout();
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     checkAuth();
-  }, [logout, refreshToken]);
+  }, [checkAuth]);
 
-  const contextValue = {
-    isAuthenticated,
-    isLoading,
-    user,
-    login,
-    logout,
-    refreshToken
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await authService.login({ email, password });
+      localStorage.setItem('token', response.accessToken);
+      
+      // Create a mock user for now
+      const mockUser: User = {
+        id: '1',
+        email,
+        username: email.split('@')[0],
+        profileImage: undefined,
+        bio: undefined,
+        socialLinks: undefined,
+        dreamStats: {
+          totalDreams: 0,
+          publicDreams: 0,
+          privateDreams: 0,
+          totalLikes: 0,
+          totalComments: 0,
+          totalSaves: 0,
+        },
+        engagement: {
+          followers: [],
+          following: [],
+          blockedUsers: [],
+          notifications: [],
+        },
+        preferences: {
+          emailNotifications: true,
+          pushNotifications: true,
+          privateAccount: false,
+          showEngagementStats: true,
+          allowMessages: 'everyone',
+        },
+        points: 0,
+        level: 1,
+        insightRank: 'Dreamer Initiate',
+        friends: [],
+        dreamAnalysisCount: 0,
+      };
+      setUser(mockUser);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const register = async (email: string, username: string, password: string) => {
+    try {
+      await authService.register({ email, username, password });
+      // After successful registration, log the user in
+      await login(email, password);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};

@@ -109,8 +109,15 @@ class RewardSystem {
     // Get user's current points
     const currentPoints = await this.getUserPoints(userId);
     
-    // Find new rank
-    const newRank = RANKS.findLast(rank => currentPoints >= rank.minPoints);
+    // Find new rank by iterating backwards
+    const newRank = (() => {
+      for (let i = RANKS.length - 1; i >= 0; i--) {
+        if (currentPoints >= RANKS[i].minPoints) {
+          return RANKS[i];
+        }
+      }
+      return RANKS[0];
+    })();
     
     if (newRank) {
       // Update user's rank if changed

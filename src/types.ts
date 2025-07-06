@@ -21,6 +21,7 @@ export interface Dream {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  views: number;
 }
 
 export interface Comment {
@@ -75,6 +76,11 @@ export interface User {
     showEngagementStats: boolean;
     allowMessages: 'everyone' | 'followers' | 'none';
   };
+  points: number;
+  level: number;
+  insightRank: string;
+  friends: string[];
+  dreamAnalysisCount: number;
 }
 
 export interface NotificationSetting {
@@ -102,4 +108,45 @@ export interface EngagementMetrics {
     locations: Record<string, number>;
     timeZones: Record<string, number>;
   };
+}
+
+export interface AnalysisResult {
+  interpretation: string;
+  archetypes: string[];
+  symbols: Array<{
+    name: string;
+    meanings: string[];
+    archetypal: string[];
+    alchemical: string[];
+  }>;
+  alchemicalStage: string;
+  emotionalTone: string;
+  psychologicalInsights: string[];
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  read: boolean;
+  timestamp: string;
+}
+
+export interface NewUser {
+  username: string;
+  email: string;
+  passwordHash: string;
+  profileImage?: string;
+  bio?: string;
+}
+
+export interface NewDream {
+  userId: string;
+  title: string;
+  content: string;
+  mood?: string;
+  visibility: 'public' | 'private';
+  interpretation?: string;
+  symbols: string[];
 }

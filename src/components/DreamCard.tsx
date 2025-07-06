@@ -1,100 +1,115 @@
-import React, { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Tag, Heart, MessageCircle, Bookmark, Eye, EyeOff } from 'lucide-react';
-import { Dream } from '../types';
+import { Heart, MessageCircle, Share2, Eye, Calendar } from 'lucide-react';
+import type { Dream } from '../types';
 
 interface DreamCardProps {
   dream: Dream;
-  onLike?: (dreamId: number) => void;
-  onSave?: (dreamId: number) => void;
-  onComment?: (dreamId: number) => void;
+  onLike: (dreamId: number) => void;
+  onComment: (dreamId: number) => void;
+  onShare: (dreamId: number) => void;
+  onView: (dreamId: number) => void;
 }
 
-const DreamCard = ({ dream, onLike, onSave, onComment }: DreamCardProps) => {
+const DreamCard = ({ dream, onLike, onComment, onShare, onView }: DreamCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleLike = () => {
+    onLike(dream.id);
+  };
+
+  const handleComment = () => {
+    onComment(dream.id);
+  };
+
+  const handleShare = () => {
+    onShare(dream.id);
+  };
+
+  const handleView = () => {
+    onView(dream.id);
+  };
 
   return (
     <motion.div
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="gothic-card scroll-decoration mb-8"
+      whileHover={{ scale: 1.02 }}
+      className="bg-mystic-800 rounded-lg p-6 border border-burgundy/20 hover:border-burgundy/40 transition-all"
     >
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-cinzel text-xl text-burgundy mb-2">{dream.title}</h3>
-          <div className="flex items-center gap-3 text-sm text-parchment/70">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              {dream.date}
-            </span>
-            {dream.visibility === 'private' ? (
-              <span className="flex items-center gap-1">
-                <EyeOff className="w-3 h-3" />
-                Private
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <Calendar className="w-4 h-4" />
+            <span>{new Date(dream.date).toLocaleDateString()}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {dream.visibility === 'public' && (
+            <Eye className="w-4 h-4 text-gray-400" />
+          )}
+        </div>
+      </div>
+
+      <p className="text-gray-300 mb-4 line-clamp-3">{dream.content}</p>
+
+      {dream.symbols.length > 0 && (
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2">
+            {dream.symbols.slice(0, 3).map((symbol, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-burgundy/20 text-burgundy text-xs rounded-full"
+              >
+                {symbol}
               </span>
-            ) : (
-              <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                Public
+            ))}
+            {dream.symbols.length > 3 && (
+              <span className="px-2 py-1 bg-gray-700 text-gray-400 text-xs rounded-full">
+                +{dream.symbols.length - 3}
               </span>
             )}
           </div>
         </div>
-      </div>
-      
-      <p className="text-parchment/90 mb-6 leading-relaxed">{dream.content}</p>
-      
-      <div className="flex flex-wrap gap-3 mb-6">
-        {dream.symbols.map((symbol, index) => (
-          <motion.span
-            key={index}
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-1 text-sm px-4 py-1 bg-burgundy/20 text-burgundy border border-burgundy/30"
-          >
-            <Tag className="w-3 h-3" />
-            {symbol}
-          </motion.span>
-        ))}
-      </div>
+      )}
 
-      {dream.visibility === 'public' && (
-        <div className="flex gap-6 text-parchment/70 mb-6 ornate-border py-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            onClick={() => onLike?.(dream.id)}
-            className={`flex items-center gap-2 hover:text-burgundy transition-colors ${
-              dream.liked ? 'text-burgundy' : ''
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleLike}
+            className={`flex items-center gap-1 text-sm transition-colors ${
+              dream.liked ? 'text-burgundy' : 'text-gray-400 hover:text-burgundy'
             }`}
           >
-            <Heart className={`w-4 h-4 ${dream.liked ? 'fill-burgundy' : ''}`} />
-            {dream.likes || 0}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            onClick={() => onComment?.(dream.id)}
-            className="flex items-center gap-2 hover:text-burgundy transition-colors"
+            <Heart className={`w-4 h-4 ${dream.liked ? 'fill-current' : ''}`} />
+            <span>{dream.likes}</span>
+          </button>
+
+          <button
+            onClick={handleComment}
+            className="flex items-center gap-1 text-sm text-gray-400 hover:text-burgundy transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
-            {dream.comments?.length || 0}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            onClick={() => onSave?.(dream.id)}
-            className={`flex items-center gap-2 hover:text-burgundy transition-colors ${
-              dream.saved ? 'text-burgundy' : ''
-            }`}
+            <span>{dream.comments.length}</span>
+          </button>
+
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1 text-sm text-gray-400 hover:text-burgundy transition-colors"
           >
-            <Bookmark className={`w-4 h-4 ${dream.saved ? 'fill-burgundy' : ''}`} />
-            {dream.saves || 0}
-          </motion.button>
+            <Share2 className="w-4 h-4" />
+            <span>{dream.shares}</span>
+          </button>
         </div>
-      )}
-      
-      <div className="p-6 bg-mystic-900/50 border border-burgundy/20">
-        <p className="text-parchment/80 italic font-cormorant leading-relaxed">
-          {dream.interpretation}
-        </p>
+
+        <button
+          onClick={handleView}
+          className="text-sm text-burgundy hover:text-burgundy/80 transition-colors"
+        >
+          View Details
+        </button>
       </div>
     </motion.div>
   );

@@ -14,12 +14,12 @@ const UserAccount = () => {
   const [user, setUser] = useState<UserType>({
     id: '1',
     username: 'DreamWeaver',
+    email: 'dreamweaver@example.com',
     points: 250,
     level: 3,
     insightRank: 'Mystic Interpreter',
     friends: [],
     dreamAnalysisCount: 15,
-    badges: [],
     bio: 'Exploring the depths of the unconscious mind through dream analysis and Jungian psychology.',
     profileImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&h=200&auto=format&fit=crop',
     socialLinks: [
@@ -27,6 +27,27 @@ const UserAccount = () => {
       { platform: 'Instagram', url: '', icon: Instagram },
       { platform: 'Website', url: '', icon: Globe },
     ],
+    dreamStats: {
+      totalDreams: 15,
+      publicDreams: 8,
+      privateDreams: 7,
+      totalLikes: 42,
+      totalComments: 12,
+      totalSaves: 5,
+    },
+    engagement: {
+      followers: ['user2', 'user3'],
+      following: ['user4', 'user5'],
+      blockedUsers: [],
+      notifications: [],
+    },
+    preferences: {
+      emailNotifications: true,
+      pushNotifications: true,
+      privateAccount: false,
+      showEngagementStats: true,
+      allowMessages: 'everyone',
+    },
   });
 
   const [isEditing, setIsEditing] = useState(false);

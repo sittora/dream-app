@@ -1,78 +1,48 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RecordDreams from './pages/RecordDreams';
-import JungianAnalysis from './pages/JungianAnalysis';
 import DreamWeb from './pages/DreamWeb';
+import JungianAnalysis from './pages/JungianAnalysis';
 import Oracle from './pages/Oracle';
 import Resources from './pages/Resources';
 import UserAccount from './pages/UserAccount';
-import ProtectedRoute from './components/ProtectedRoute';
+import './index.css';
 
-const App = () => {
+function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-black text-gray-200 flex flex-col">
-        <div className="mystical-blur" />
-        <Navbar />
-        
-        <main className="container mx-auto px-4 py-8 flex-1">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route
-              path="/record"
-              element={
-                <ProtectedRoute>
-                  <RecordDreams />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analysis"
-              element={
-                <ProtectedRoute>
-                  <JungianAnalysis />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dreamweb"
-              element={
-                <ProtectedRoute>
-                  <DreamWeb />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/oracle"
-              element={
-                <ProtectedRoute>
-                  <Oracle />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/account"
-              element={
-                <ProtectedRoute>
-                  <UserAccount />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </main>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-mystic-900 text-white">
+            <div className="mystical-blur" />
+            <Navbar />
+            
+            <main className="container mx-auto px-4 py-8 flex-1">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/record-dreams" element={<RecordDreams />} />
+                <Route path="/dream-web" element={<DreamWeb />} />
+                <Route path="/jungian-analysis" element={<JungianAnalysis />} />
+                <Route path="/oracle" element={<Oracle />} />
+                <Route path="/resources" element={<Resources />} />
+                <Route path="/account" element={<UserAccount />} />
+              </Routes>
+            </main>
 
-        <Footer />
-      </div>
-    </Router>
+            <Footer />
+          </div>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
-};
+}
 
 export default App;

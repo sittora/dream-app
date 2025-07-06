@@ -37,8 +37,31 @@ const RecordDreams = () => {
     setDreams(prev => [...prev, { ...newDream, id: prev.length + 1 }]);
   };
 
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(new Date(date));
+  };
+
+  const handleLike = (dreamId: number) => {
+    setDreams(prev => prev.map(dream => 
+      dream.id === dreamId 
+        ? { ...dream, likes: dream.likes + 1, liked: true }
+        : dream
+    ));
+  };
+
+  const handleComment = (dreamId: number) => {
+    // Handle comment functionality
+    console.log('Comment on dream:', dreamId);
+  };
+
+  const handleShare = (dreamId: number) => {
+    // Handle share functionality
+    console.log('Share dream:', dreamId);
+  };
+
+  const handleView = (dreamId: number) => {
+    // Handle view functionality
+    console.log('View dream:', dreamId);
   };
 
   return (
@@ -100,7 +123,14 @@ const RecordDreams = () => {
           )}
 
           {filteredDreams.map((dream) => (
-            <DreamCard key={dream.id} dream={dream} />
+            <DreamCard 
+              key={dream.id} 
+              dream={dream}
+              onLike={handleLike}
+              onComment={handleComment}
+              onShare={handleShare}
+              onView={handleView}
+            />
           ))}
           
           {filteredDreams.length === 0 && (
@@ -118,8 +148,7 @@ const RecordDreams = () => {
           <div className="md:col-span-1">
             <DreamCalendar
               dreams={dreams}
-              onSelectDate={handleDateSelect}
-              selectedDate={selectedDate}
+              onDateSelect={handleDateSelect}
             />
           </div>
         )}

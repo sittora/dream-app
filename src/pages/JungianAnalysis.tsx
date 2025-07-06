@@ -82,9 +82,11 @@ const JungianAnalysis = () => {
                 <h3 className="font-medium mb-2">Key Symbols</h3>
                 <div className="space-y-2">
                   {analysis.symbols.map((symbol, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-gray-300">{symbol.name}</span>
-                      <span className="text-gray-400">{symbol.meaning}</span>
+                    <div key={index} className="bg-mystic-800 p-4 rounded-lg">
+                      <h4 className="font-cinzel text-burgundy mb-2">{symbol.name}</h4>
+                      <div className="space-y-1">
+                        <span className="text-gray-400">{symbol.meanings.join(', ')}</span>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -1,12 +1,18 @@
 import { db } from '../db';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 import { 
   users, dreams, dreamSymbols, comments, 
-  userRelations, userEngagement, pointTransactions,
-  messages, notifications
+  engagement, points, messages, notifications
 } from '../db/schema';
-import type { NewUser, NewDream, NewComment } from '../types';
+import type { NewUser, NewDream } from '../types';
 import { createId } from '../utils/ids';
+
+interface SymbolData {
+  name: string;
+  meaning?: string;
+  archetype?: string;
+  alchemicalStage?: string;
+}
 
 export class DatabaseService {
   // User operations
@@ -37,7 +43,7 @@ export class DatabaseService {
   }
 
   // Dream operations
-  async createDream(data: NewDream) {
+  async createDream(data: NewDream & { symbols?: SymbolData[] }) {
     const dream = await db.insert(dreams).values({
       ...data,
       id: createId(),
@@ -45,9 +51,9 @@ export class DatabaseService {
       updatedAt: new Date(),
     }).returning();
 
-    if (data.symbols) {
+    if (data.symbols && data.symbols.length > 0) {
       await db.insert(dreamSymbols).values(
-        data.symbols.map(symbol => ({
+        data.symbols.map((symbol: SymbolData) => ({
           dreamId: dream[0].id,
           symbol: symbol.name,
           meaning: symbol.meaning,
@@ -90,7 +96,7 @@ export class DatabaseService {
 
   // Engagement operations
   async addEngagement(userId: string, dreamId: string, type: 'like' | 'save' | 'share' | 'view') {
-    await db.insert(userEngagement).values({
+    await db.insert(engagement).values({
       userId,
       dreamId,
       type,
@@ -104,9 +110,9 @@ export class DatabaseService {
   }
 
   // Points system
-  async addPoints(userId: string, amount: number, type: string, source: string) {
+  async addPoints(userId: string, amount: number, type: 'dream_share' | 'interpretation' | 'received_like' | 'streak_bonus' | 'achievement', source: string) {
     await db.transaction(async (tx) => {
-      await tx.insert(pointTransactions).values({
+      await tx.insert(points).values({
         userId,
         amount,
         type,
@@ -121,7 +127,7 @@ export class DatabaseService {
   }
 
   // Notifications
-  async createNotification(userId: string, type: string, content: string) {
+  async createNotification(userId: string, type: 'like' | 'comment' | 'follow' | 'message' | 'achievement' | 'level_up', content: string) {
     return db.insert(notifications).values({
       userId,
       type,
