@@ -1,4 +1,4 @@
-import { db } from '../db';
+import { db } from '../db/index';
 import { eq, desc, sql } from 'drizzle-orm';
 import { 
   users, dreams, dreamSymbols, comments, 
