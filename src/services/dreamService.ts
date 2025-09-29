@@ -205,7 +205,7 @@ class DreamService {
           .where(eq(dreamSymbols.dreamId, dream.id));
 
         // Filter by symbol if specified
-        if (symbol && !symbols.some(s => s.symbol.includes(symbol.toLowerCase()))) {
+        if (symbol && !symbols.some((s: { symbol: string }) => s.symbol.includes(symbol.toLowerCase()))) {
           continue;
         }
 
@@ -216,7 +216,7 @@ class DreamService {
           profileImage: users.profileImage,
         }).from(users).where(eq(users.id, dream.userId));
 
-        dreamsWithSymbols.push(this.convertDreamToDreamWithSymbols(dream, symbols.map(s => s.symbol), user));
+  dreamsWithSymbols.push(this.convertDreamToDreamWithSymbols(dream, symbols.map((s: { symbol: string }) => s.symbol), user));
       }
 
       return dreamsWithSymbols;
@@ -271,7 +271,7 @@ class DreamService {
         .set({ views: sql`${dreams.views} + 1` })
         .where(eq(dreams.id, dreamId));
 
-      return this.convertDreamToDreamWithSymbols(dream, symbols.map(s => s.symbol), user);
+  return this.convertDreamToDreamWithSymbols(dream, symbols.map((s: { symbol: string }) => s.symbol), user);
     } catch (error) {
       logger.error('Failed to get dream by ID', { error, dreamId });
       throw error;
@@ -404,7 +404,7 @@ class DreamService {
         .where(like(dreamSymbols.symbol, `%${symbol.toLowerCase()}%`))
         .limit(limit);
 
-      const dreamIds = symbols.map(s => s.dreamId);
+  const dreamIds = symbols.map((s: { dreamId: string }) => s.dreamId);
       
       if (dreamIds.length === 0) {
         return [];
@@ -438,7 +438,7 @@ class DreamService {
           profileImage: users.profileImage,
         }).from(users).where(eq(users.id, dream.userId));
 
-        dreamsWithSymbols.push(this.convertDreamToDreamWithSymbols(dream, dreamSymbolsData.map(s => s.symbol), user));
+  dreamsWithSymbols.push(this.convertDreamToDreamWithSymbols(dream, dreamSymbolsData.map((s: { symbol: string }) => s.symbol), user));
       }
 
       return dreamsWithSymbols;

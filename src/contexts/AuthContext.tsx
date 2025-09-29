@@ -1,5 +1,18 @@
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { jwtVerify, SignJWT } from 'jose';
+
+// Lightweight JWT decoder for client-side use (no signature verification)
+function safeDecodeJwt(token: string): any {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return {};
+    const payload = parts[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(decodeURIComponent(escape(decoded)));
+  } catch (err) {
+    console.warn('safeDecodeJwt failed', err);
+    return {};
+  }
+}
 import { authService } from '../services/auth';
 import { logger } from '../services/logger';
 import type { User } from '../types';
@@ -24,18 +37,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkAuth = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
       if (!token) {
         setIsLoading(false);
         return;
       }
 
-      const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.VITE_JWT_SECRET));
+      // Decode token client-side to populate user information (server must verify tokens)
+      let payload: any = {};
+      try {
+        payload = safeDecodeJwt(token);
+      } catch (err) {
+        console.warn('Failed to decode token in AuthContext:', err);
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        setIsLoading(false);
+        return;
+      }
+
       // Create a mock user from the token payload
       const mockUser: User = {
         id: payload.sub as string,
-        email: payload.email as string || '',
-        username: payload.username as string || '',
+        email: (payload.email as string) || '',
+        username: (payload.username as string) || '',
         profileImage: undefined,
         bio: undefined,
         socialLinks: undefined,
@@ -68,8 +92,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       };
       setUser(mockUser);
     } catch (error) {
-      logger.error('Token verification failed', { error });
+      logger.error('Token handling failed', { error });
       localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
     } finally {
       setIsLoading(false);
     }

@@ -111,7 +111,7 @@ export class DatabaseService {
 
   // Points system
   async addPoints(userId: string, amount: number, type: 'dream_share' | 'interpretation' | 'received_like' | 'streak_bonus' | 'achievement', source: string) {
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: any) => {
       await tx.insert(points).values({
         userId,
         amount,

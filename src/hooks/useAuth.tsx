@@ -1,5 +1,18 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { jwtVerify } from 'jose';
+
+// Lightweight JWT decoder for client-side use (no signature verification)
+function safeDecodeJwt(token: string): any {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return {};
+    const payload = parts[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(decodeURIComponent(escape(decoded)));
+  } catch (err) {
+    console.warn('safeDecodeJwt failed', err);
+    return {};
+  }
+}
 import { authService } from '../services/auth';
 
 interface AuthContextType {
@@ -20,7 +33,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
 
   const login = useCallback(async (email: string, password: string, mfaCode?: string) => {
     try {
@@ -61,6 +74,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { accessToken } = await authService.refreshToken(token);
       localStorage.setItem('accessToken', accessToken);
+      try {
+        // Decode token payload client-side (no secret required) to populate user state
+        const payload = safeDecodeJwt(accessToken);
+        setUser(payload);
+        setIsAuthenticated(true);
+      } catch (err) {
+        // If decoding fails, still return success so caller can decide next steps
+        console.warn('Failed to decode refreshed access token:', err);
+      }
+
       return true;
     } catch {
       return false;
@@ -72,16 +95,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const token = localStorage.getItem('accessToken');
         if (!token) {
-          throw new Error('No token');
+          // Try to refresh the token if access token is missing
+          const refreshed = await refreshToken();
+          if (!refreshed) throw new Error('No token');
+          return;
         }
 
-        const { payload } = await jwtVerify(
-          token,
-          new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET)
-        );
-
-        setUser(payload);
-        setIsAuthenticated(true);
+        // Decode token client-side without verifying signature (verification should occur on server)
+        try {
+          const payload = safeDecodeJwt(token);
+          setUser(payload);
+          setIsAuthenticated(true);
+        } catch (err) {
+          // If decoding fails, attempt refresh
+          console.warn('Failed to decode access token:', err);
+          const refreshed = await refreshToken();
+          if (!refreshed) {
+            throw new Error('Invalid token');
+          }
+          return;
+        }
       } catch (error) {
         const refreshed = await refreshToken();
         if (!refreshed) {
