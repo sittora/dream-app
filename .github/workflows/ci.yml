@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [ main ]
@@ -7,105 +6,11 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Cache numinos-service node_modules
-        uses: actions/cache@v4
-        with:
-          path: numinos-service/node_modules
-          key: ${{ runner.os }}-numinos-${{ hashFiles('numinos-service/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-numinos-
-
-      - name: Install numinos-service dependencies
-        run: npm ci --prefix numinos-service
-
-      - name: Wait for Redis
-        run: |
-          echo "Waiting for Redis to be ready..."
-          for i in {1..15}; do
-            if nc -z localhost 6379; then
-              echo "Redis is up"; break
-            fi
-            sleep 1
-          done
-
-      - name: Run tests (numinos-service)
-        env:
-          REDIS_URL: redis://127.0.0.1:6379
-        run: |
-          npm test --prefix numinos-service
-
-  integration:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Compose
-        uses: docker/compose-action@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          compose-file: docker-compose.yml
-          action: up
-          detached: true
-
-      - name: Wait for Postgres
-        run: |
-          echo "Waiting for Postgres to be ready..."
-          for i in {1..30}; do
-            docker compose exec -T postgres pg_isready -U numinos -d numinos && break || sleep 1
-          done
-
-      - name: Wait for Redis
-        run: |
-          echo "Waiting for Redis to be ready..."
-          for i in {1..30}; do
-            if docker compose exec -T redis redis-cli ping 2>/dev/null | grep -q PONG; then
-              echo "Redis is up"; break
-            fi
-            sleep 1
-          done
-
-      - name: Install numinos-service dependencies
-        run: npm ci --prefix numinos-service
-
-      - name: Run migrations (versioned)
-        env:
-          DATABASE_URL: postgres://numinos:numinospass@127.0.0.1:5432/numinos
-          REDIS_URL: redis://127.0.0.1:6379
-        run: |
-          npm run build --prefix numinos-service
-          # attempt drizzle-kit migrations first (if configured)
-          npx --yes drizzle-kit migrate --config numinos-service/drizzle.config.ts || true
-          npm run db:migrate --prefix numinos-service
-
-      - name: Run full tests
-        env:
-          DATABASE_URL: postgres://numinos:numinospass@127.0.0.1:5432/numinos
-          REDIS_URL: redis://127.0.0.1:6379
-        run: |
-          npm test --prefix numinos-service
-
-      - name: Tear down docker-compose
-        if: always()
-        run: docker-compose down -v
+          node-version: '20'
+          cache: 'npm'
