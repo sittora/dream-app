@@ -50,17 +50,23 @@ const DreamForm = ({ onClose, onSave }: DreamFormProps) => {
       views: 0,
     };
 
+    // Attempt analysis but do not block saving if analysis fails.
+    let interpretation: string | undefined = undefined;
     try {
       const analysis = await analyzeDream(dreamData as unknown as Dream);
-      
+      interpretation = analysis?.interpretation;
+    } catch (error) {
+      console.warn('Dream analysis failed (non-fatal):', error);
+    }
+
+    // Always save the dream locally / via parent handler, with interpretation if available
+    try {
+      console.log('DreamForm: submitting dream to parent', { ...dreamData, interpretation });
       onSave({
         ...dreamData,
-        interpretation: analysis.interpretation,
+        interpretation,
       });
-      
       onClose();
-    } catch (error) {
-      console.error('Failed to analyze dream:', error);
     } finally {
       setIsAnalyzing(false);
     }

@@ -5,7 +5,7 @@ export interface Dream {
   content: string;
   mood: string;
   symbols: string[];
-  interpretation: string;
+  interpretation?: string;
   visibility: 'public' | 'private';
   authorId: string;
   authorUsername: string;
@@ -18,7 +18,7 @@ export interface Dream {
   saved: boolean;
   engagementScore: number;
   trending?: boolean;
-  tags: string[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
   views: number;

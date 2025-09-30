@@ -1,0 +1,42 @@
+{
+  "name": "numinos-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node ./dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json -w",
+    "dev:run": "nodemon --watch dist --delay 1 --exec node dist/index.js",
+    "dev": "npm run build:watch & npm run dev:run",
+    "migrate": "node ./dist/migrate-files-to-postgres.js || node ./src/migrate-files-to-postgres.js",
+    "db:migrate": "ts-node ./src/scripts/apply-migrations.ts",
+    "drizzle:migrate": "drizzle-kit migrate --config ../../drizzle.config.ts",
+    "db:migrate:node": "node ./dist/src/scripts/apply-migrations.js || node ./src/scripts/apply-migrations.ts",
+    "test": "npm run build && (node ./dist/tests/hostAuth.test.js || node ./tests/hostAuth.test.ts)"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "ioredis": "^5.3.2",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^6.0.1",
+    "pg": "^8.11.0",
+    "jsonwebtoken": "^9.0.0",
+    "openai": "^4.20.0",
+    "pino": "^8.17.0",
+    "pino-http": "^8.5.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/pg": "^8.6.6",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6",
+    "drizzle-kit": "^0.20.18",
+    "nodemon": "^3.0.1"
+  }
+}

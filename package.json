@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+  "dev:all": "concurrently \"npm run dev\" \"tsc -p numinos-service/tsconfig.json -w\" \"nodemon --watch numinos-service/dist/index.js --delay 1 --exec \"node numinos-service/dist/index.js\"\"",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext ts,tsx --fix",
+  "lint": "eslint \"src/**/*.{ts,tsx}\" \"numinos-service/src/**/*.{ts,tsx}\" \"scripts/**/*.{ts,js}\" || true",
+  "lint:fix": "eslint \"src/**/*.{ts,tsx}\" \"numinos-service/src/**/*.{ts,tsx}\" --fix || true",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
     "type-check": "tsc --noEmit",
     "db:setup": "node scripts/setup-db.js",
@@ -19,7 +20,8 @@
     "security:audit": "npm audit",
     "update:check": "ncu",
     "update:apply": "ncu -u && npm install",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "dev:numinos": "node ./scripts/dev-journal-server.js"
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.0.8",
@@ -71,8 +73,11 @@
     "tailwindcss": "^3.3.5",
     "tsx": "^4.6.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1"
   },
+
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",

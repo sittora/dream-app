@@ -33,3 +33,4 @@ coverage/
 
 # Ignore local env example (but keep it tracked)
 !.env.example
+.env

@@ -100,6 +100,9 @@ npm run dev
 - `npm run update:check` - Check for updates
 - `npm run update:apply` - Update dependencies
 
+#### Host authentication for sidecar
+- The NuminOS sidecar supports stronger host authentication using signed assertions (RS256). See `numinos-service/docs/host-auth.md` for details and `numinos-service/scripts/host-request-token.js` for an example host script that signs an assertion and requests a token from `/token`.
+
 ### Project Structure
 ```
 anima-insights/

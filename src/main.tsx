@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import NuminosEmbed from './components/NuminosEmbed';
 import './index.css';
 
 console.log('main.tsx is loading...');
@@ -41,6 +42,7 @@ if (rootElement) {
     root.render(
       <React.StrictMode>
         <App />
+        <NuminosEmbed />
       </React.StrictMode>
     );
 

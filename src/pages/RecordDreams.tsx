@@ -9,6 +9,7 @@ import DreamDetail from '../components/DreamDetail';
 import BackButton from '../components/BackButton';
 // import { dreamService } from '../services/dreamService';
 import { useAuth } from '../hooks/useAuth';
+import { env } from '../config/env';
 import type { Dream } from '../types';
 
 const RecordDreams = () => {
@@ -50,19 +51,95 @@ const RecordDreams = () => {
   }, [dreams, selectedDate, searchQuery, symbolFilter]);
 
   const handleSaveDream = async (newDream: Omit<Dream, 'id'>) => {
-    if (!user?.id) {
-      console.error('User not authenticated');
-      return;
-    }
+    // Allow guest saves (useful for quick journaling without auth)
+    const authorId = user?.id ?? 'guest';
+    const authorUsername = user?.username ?? 'Guest';
 
     try {
-      // Temporarily disable database saving
-      console.log('Dream saving temporarily disabled');
-      setShowDreamForm(false);
+      // Persist the new dream to local state so it appears immediately in the journal.
+      // We assign a numeric id locally (Date.now()) and fill in author fields from the authenticated user.
+      const nowIso = new Date().toISOString();
+      const localDream: Dream = {
+        ...newDream,
+        id: Date.now(),
+        authorId,
+        authorUsername,
+        authorAvatar: (user && (user.profileImage || undefined)) || undefined,
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      } as Dream;
+
+  // Prepend so latest appears first
+  console.log('RecordDreams: received new dream from form', localDream);
+  setDreams(prev => [localDream, ...prev]);
+  setShowDreamForm(false);
+
+      // Persist to backend with client-side retry queue
+  console.log('RecordDreams: enqueueing for persistence', localDream);
+  enqueuePendingLocal(localDream);
     } catch (error) {
       console.error('Failed to save dream:', error);
     }
   };
+
+  // Client-side pending queue (localStorage) for unreliable network / auth
+  const PENDING_KEY = 'dream_pending_queue_v1';
+
+  function enqueuePendingLocal(dreamObj: any) {
+    try {
+      const queue = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+      queue.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2), dream: dreamObj, attempts: 0, createdAt: new Date().toISOString() });
+      localStorage.setItem(PENDING_KEY, JSON.stringify(queue));
+    } catch (e) {
+      console.warn('Failed to enqueue pending dream', e);
+    }
+  }
+
+  async function flushPendingQueueOnce() {
+    try {
+      const queue = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+      if (!Array.isArray(queue) || queue.length === 0) return;
+      const sidecarOrigin = (import.meta.env.VITE_SIDECAR_ORIGIN as string) || 'http://localhost:5789';
+      const accessToken = localStorage.getItem('accessToken');
+      const remaining: any[] = [];
+      for (const item of queue) {
+        try {
+          const res = await fetch(sidecarOrigin + '/journal', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(accessToken ? { Authorization: 'Bearer ' + accessToken } : {}),
+            },
+            body: JSON.stringify(item.dream),
+          });
+          if (res.ok) {
+            // persisted
+            continue;
+          } else if (res.status === 202) {
+            // queued server-side; treat as persisted for client
+            continue;
+          } else {
+            item.attempts = (item.attempts || 0) + 1;
+            if (item.attempts < 5) remaining.push(item);
+          }
+        } catch (e) {
+          item.attempts = (item.attempts || 0) + 1;
+          if (item.attempts < 5) remaining.push(item);
+        }
+      }
+      localStorage.setItem(PENDING_KEY, JSON.stringify(remaining));
+    } catch (e) {
+      console.warn('Failed to flush pending queue', e);
+    }
+  }
+
+  // Periodically try to flush pending queue
+  React.useEffect(() => {
+    const id = setInterval(() => { flushPendingQueueOnce().catch(()=>{}); }, 8000);
+    // Also try on mount
+    flushPendingQueueOnce().catch(()=>{});
+    return () => clearInterval(id);
+  }, []);
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(new Date(date));

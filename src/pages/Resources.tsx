@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Book, Search, ExternalLink } from 'lucide-react';
 import BackButton from '../components/BackButton';
+import JUNG_PRIMARY_RESOURCES from '../data/jung.resources';
 
 interface Resource {
   id: string;
@@ -9,31 +10,21 @@ interface Resource {
   author: string;
   description: string;
   tags: string[];
-  url: string;
+  url?: string;
   type: 'book' | 'article' | 'video' | 'research';
 }
 
-const JUNGIAN_RESOURCES: Resource[] = [
-  {
-    id: '1',
-    title: 'Man and His Symbols',
-    author: 'Carl G. Jung',
-    description: 'Jung\'s last work, written specifically for the general public, explores the world of dreams and their symbols.',
-    tags: ['dreams', 'symbols', 'archetypes', 'unconscious'],
-    url: 'https://archive.org/details/manandhissymbols',
-    type: 'book'
-  },
-  {
-    id: '2',
-    title: 'The Interpretation of Dreams in Clinical Work',
-    author: 'Marie-Louise von Franz',
-    description: 'A comprehensive guide to working with dreams in analytical psychology.',
-    tags: ['clinical', 'interpretation', 'analysis', 'methodology'],
-    url: 'https://www.jstor.org/stable/j.ctt5hjk9z',
-    type: 'research'
-  },
-  // Add more resources...
-];
+// Map the vetted Jung resources to the UI Resource shape.
+const JUNGIAN_RESOURCES: Resource[] = JUNG_PRIMARY_RESOURCES.map(r => ({
+  id: r.id,
+  title: r.title,
+  author: r.author,
+  description: r.description,
+  tags: r.tags,
+  url: r.link,
+  // map collected_work and book -> UI 'book'; essay -> 'article'; research -> 'research'
+  type: (r.resourceType === 'book' || r.resourceType === 'collected_work') ? 'book' : (r.resourceType === 'essay' ? 'article' : 'research')
+}));
 
 const Resources = () => {
   const [searchQuery, setSearchQuery] = useState('');
