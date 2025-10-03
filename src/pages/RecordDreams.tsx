@@ -9,7 +9,7 @@ import DreamDetail from '../components/DreamDetail';
 import BackButton from '../components/BackButton';
 // import { dreamService } from '../services/dreamService';
 import { useAuth } from '../hooks/useAuth';
-import { env } from '../config/env';
+import { env } from '../config';
 import type { Dream } from '../types';
 
 const RecordDreams = () => {
