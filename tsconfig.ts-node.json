@@ -1,0 +1,6 @@
+{
+  "ts-node": {
+    "esm": true,
+    "project": "./tsconfig.server.json"
+  }
+}
