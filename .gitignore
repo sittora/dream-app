@@ -6,6 +6,29 @@
 .env.test.local
 .env.production.local
 
+# Docker and Database specific
+docker-compose.override.yml
+docker-compose.production.yml
+pgdata/
+redis-data/
+postgres-data/
+
+# Authentication and Key files
+**/test-keys/
+**/*_private.pem
+**/*_public.pem
+**/keys/
+auth-keys/
+jwt-keys/
+ssl-certs/
+
+# API Keys and secrets in any config
+**/secrets/
+**/api-keys/
+config/secrets.json
+config/production.json
+config/staging.json
+
 # Build outputs
 dist/
 build/
@@ -26,8 +49,10 @@ pnpm-debug.log*
 data/
 *.db-shm
 *.db-wal
+/numinos-service/pgdata/
+/pgdata/
 
-# Logs
+# Logs and debug files
 logs/
 *.log
 lerna-debug.log*
@@ -107,3 +132,33 @@ storybook-static/
 # Local development files
 .local/
 local.json
+
+# User-specific sensitive data
+user-data/
+uploads/
+user-uploads/
+personal-notes/
+private/
+
+# Backup files
+*.backup
+*.bak
+*.orig
+backup/
+backups/
+
+# Analytics and tracking
+analytics-data/
+tracking/
+*.analytics
+
+# Test data that might contain sensitive info
+test-data/
+mock-data/
+seed-data/
+
+# Session and token storage
+sessions/
+tokens/
+.sessions
+.tokens
