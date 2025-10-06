@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Anima Insights - Dream Journal & Interpretation</title>
     <meta name="description" content="Explore your unconscious mind through Jungian dream interpretation and analysis." />
+    <script>
+      // Apply persisted theme before CSS loads to avoid flicker
+      try {
+        const t = localStorage.getItem('anima:theme');
+        if (t === 'day' || t === 'night') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        /* ignore */
+      }
+    </script>
   </head>
   <body>
     <div style="position:fixed;left:0;right:0;top:0;background:#0f172a;color:#a78bfa;padding:6px 8px;font-family:monospace;z-index:9999; text-align:center;">DEV BUILD — served by Vite at http://localhost:5174 — reload to see updates</div>
