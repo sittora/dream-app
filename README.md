@@ -74,6 +74,26 @@ npm run db:seed  # Optional: Add sample data
 npm run dev
 ```
 
+## Developer setup: Git hooks and secret protection
+
+We include a Git pre-commit hook to block accidental commits of sensitive files (env files, private keys, etc.). To enable hooks for your local clone, run:
+
+```bash
+# install dev deps (if not already installed)
+npm install
+
+# install Husky and enable hooks (recommended)
+npm install husky --save-dev
+npx husky install
+
+# Add the pre-commit hook (this project already contains .husky/pre-commit and scripts/prevent-secrets.sh)
+npx husky add .husky/pre-commit "scripts/prevent-secrets.sh"
+
+# The hook will now run automatically on commits and prevent secrets from being committed.
+```
+
+Note: the project contains `scripts/prevent-secrets.sh` which scans staged files for common secret patterns. Keep any real credentials out of the repo and only store placeholders in `.env.example`.
+
 ## 🛠️ Development
 
 ### Available Scripts
