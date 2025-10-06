@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, LogIn, UserPlus, LogOut, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { navItems } from '../config/navigation';
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, isLoading } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    navigate('/');
+  };
 
   return (
     <div className="md:hidden">
@@ -45,6 +54,65 @@ const MobileMenu = () => {
                   <span className="font-medium">{label}</span>
                 </Link>
               ))}
+              
+              {/* Authentication Section */}
+              {!isLoading && (
+                <>
+                  <div className="border-t border-burgundy/20 my-4"></div>
+                  {user ? (
+                    /* Logged in state */
+                    <>
+                      <Link
+                        to="/account"
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
+                          location.pathname === '/account'
+                            ? 'bg-burgundy/20 text-burgundy'
+                            : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                      >
+                        <User className="w-5 h-5" />
+                        <span className="font-medium">Profile</span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors text-gray-400 hover:text-red-400 w-full text-left"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span className="font-medium">Logout</span>
+                      </button>
+                    </>
+                  ) : (
+                    /* Logged out state */
+                    <>
+                      <Link
+                        to="/login"
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
+                          location.pathname === '/login'
+                            ? 'bg-burgundy/20 text-burgundy'
+                            : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                      >
+                        <LogIn className="w-5 h-5" />
+                        <span className="font-medium">Login</span>
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
+                          location.pathname === '/register'
+                            ? 'bg-burgundy/20 text-burgundy'
+                            : 'bg-burgundy/10 text-burgundy hover:bg-burgundy/20'
+                        }`}
+                      >
+                        <UserPlus className="w-5 h-5" />
+                        <span className="font-medium">Sign Up</span>
+                      </Link>
+                    </>
+                  )}
+                </>
+              )}
             </nav>
           </motion.div>
         )}

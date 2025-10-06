@@ -3,6 +3,7 @@ import { z } from 'zod';
 import pino from 'pino';
 import { findJungBooks, QuerySchema, type QueryParams } from './lib/jung.js';
 import { TTLCache } from './lib/cache.js';
+import { authRouter } from './server/routes.auth.simple.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -98,6 +99,9 @@ app.get('/api/jung-books', async (req: Request, res: Response) => {
     });
   }
 });
+
+// Mount authentication routes (additive - no modification to existing routes)
+app.use('/api/auth', authRouter);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

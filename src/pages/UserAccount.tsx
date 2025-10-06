@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Camera, Link as LinkIcon, Edit2, UserPlus, UserMinus, Mail, Globe, Twitter, Instagram } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import type { User as UserType } from '../types';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface SocialLink {
   platform: string;
@@ -11,74 +13,102 @@ interface SocialLink {
 }
 
 const UserAccount = () => {
-  const [user, setUser] = useState<UserType>({
-    id: '1',
-    username: 'DreamWeaver',
-    email: 'dreamweaver@example.com',
-    points: 250,
-    level: 3,
-    insightRank: 'Mystic Interpreter',
-    friends: [],
-    dreamAnalysisCount: 15,
-    bio: 'Exploring the depths of the unconscious mind through dream analysis and Jungian psychology.',
-    profileImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&h=200&auto=format&fit=crop',
-    socialLinks: [
-      { platform: 'Twitter', url: '', icon: Twitter },
-      { platform: 'Instagram', url: '', icon: Instagram },
-      { platform: 'Website', url: '', icon: Globe },
-    ],
-    dreamStats: {
-      totalDreams: 15,
-      publicDreams: 8,
-      privateDreams: 7,
-      totalLikes: 42,
-      totalComments: 12,
-      totalSaves: 5,
-    },
-    engagement: {
-      followers: ['user2', 'user3'],
-      following: ['user4', 'user5'],
-      blockedUsers: [],
-      notifications: [],
-    },
-    preferences: {
-      emailNotifications: true,
-      pushNotifications: true,
-      privateAccount: false,
-      showEngagementStats: true,
-      allowMessages: 'everyone',
-    },
+  const { user: authUser, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  // Initialize user state from authenticated user when available
+  const [user, setUser] = useState<UserType | null>(() => {
+    return authUser || null;
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState(user);
+  const [editedUser, setEditedUser] = useState<UserType | null>(user);
   const [selectedTab, setSelectedTab] = useState<'profile' | 'friends'>('profile');
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Import updateUser lazily to avoid circular deps at top-level
+  const saveToServer = async (userId: string, payload: any) => {
+    const mod = await import('../services/userClient');
+    return mod.updateUser(userId, payload);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setEditedUser(prev => ({
+        setEditedUser(prev => prev ? ({
           ...prev,
           profileImage: reader.result as string
-        }));
+        }) : prev);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleSave = () => {
-    setUser(editedUser);
-    setIsEditing(false);
+    if (!authUser || !editedUser) return;
+    // Optimistic update
+    const previous = user;
+    setUser(editedUser as UserType);
+    setIsSaving(true);
+    setStatusMessage(null);
+
+    const payload = {
+      bio: editedUser.bio,
+      profileImage: editedUser.profileImage,
+      socialLinks: editedUser.socialLinks?.map(s => ({ platform: s.platform, url: s.url }))
+    };
+
+    saveToServer(authUser.id, payload)
+      .then(() => {
+        setStatusMessage('Profile updated successfully');
+      })
+      .catch((err) => {
+        // Rollback optimistic update
+        setUser(previous as UserType);
+        setEditedUser(previous as UserType);
+        setStatusMessage('Failed to save changes. Please try again.');
+        console.error('Failed to update user:', err);
+      })
+      .finally(() => {
+        setIsSaving(false);
+        setIsEditing(false);
+      });
   };
 
   const handleRemoveFriend = (friendId: string) => {
-    setUser(prev => ({
-      ...prev,
-      friends: prev.friends.filter(id => id !== friendId)
-    }));
+    if (!user) return;
+    setUser(prev => (
+      prev ? { ...prev, friends: prev.friends.filter(id => id !== friendId) } : prev
+    ));
   };
+
+  // Redirect to login if not authenticated (and not in a loading state)
+  useEffect(() => {
+    if (!isLoading && !authUser) {
+      navigate('/login');
+    }
+  }, [authUser, isLoading, navigate]);
+
+  // Keep local user state in sync with authUser
+  useEffect(() => {
+    if (authUser) {
+      setUser(authUser);
+      setEditedUser(authUser);
+    }
+  }, [authUser]);
+
+  // Respect loading/unauthenticated states: show loader while checking auth,
+  // and bail out early if unauthenticated (redirect handled in effect above).
+  if (isLoading) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="relative max-w-4xl mx-auto">
@@ -167,29 +197,31 @@ const UserAccount = () => {
               <div className="flex-1 space-y-6">
                 {isEditing ? (
                   <>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Bio</label>
-                      <textarea
-                        value={editedUser.bio}
-                        onChange={(e) => setEditedUser(prev => ({ ...prev, bio: e.target.value }))}
-                        className="input-field min-h-[100px]"
-                        placeholder="Tell us about yourself..."
-                      />
-                    </div>
+                    {editedUser && (
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Bio</label>
+                        <textarea
+                          value={editedUser.bio}
+                          onChange={(e) => setEditedUser(prev => prev ? ({ ...prev, bio: e.target.value }) : prev)}
+                          className="input-field min-h-[100px]"
+                          placeholder="Tell us about yourself..."
+                        />
+                      </div>
+                    )}
 
                     <div>
                       <label className="block text-sm font-medium mb-1">Social Links</label>
                       <div className="space-y-3">
-                        {editedUser.socialLinks?.map((link, index) => (
+                        {editedUser?.socialLinks?.map((link, index) => (
                           <div key={link.platform} className="flex items-center gap-2">
                             <link.icon className="w-4 h-4 text-burgundy" />
                             <input
                               type="url"
                               value={link.url}
                               onChange={(e) => {
-                                const newLinks = [...(editedUser.socialLinks || [])];
+                                const newLinks = [...(editedUser?.socialLinks || [])];
                                 newLinks[index] = { ...link, url: e.target.value };
-                                setEditedUser(prev => ({ ...prev, socialLinks: newLinks }));
+                                setEditedUser(prev => prev ? ({ ...prev, socialLinks: newLinks }) : prev);
                               }}
                               placeholder={`Your ${link.platform} URL`}
                               className="input-field"
