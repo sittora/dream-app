@@ -170,3 +170,7 @@ tokens/
 .sessions
 .tokens
 reports/
+# local bins
+.bin/
+# WIP data (pending)
+numinos-data/ pending/
