@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Book, Search, ExternalLink, Video, FileText, Microscope } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import BackButton from '../components/BackButton';
 import JUNG_PRIMARY_RESOURCES from '../data/jung.resources';
 

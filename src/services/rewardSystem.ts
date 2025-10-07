@@ -1,4 +1,5 @@
 import { PointTransaction, PointTransactionType, RANKS } from '../types/rewards';
+
 import { logger } from './logger';
 
 class RewardSystem {
@@ -16,7 +17,8 @@ class RewardSystem {
     COMMUNITY_FAVORITE: 1.25,
   };
 
-  private readonly COOLDOWNS = {
+  // Prefix underscore until cooldown logic implemented
+  private readonly _COOLDOWNS = {
     DREAM_SHARE: 24 * 60 * 60 * 1000, // 24 hours
     INTERPRETATION: 15 * 60 * 1000, // 15 minutes
   };
@@ -79,28 +81,28 @@ class RewardSystem {
     }
   }
 
-  private applyMultipliers(points: number, userId: string, type: PointTransactionType): number {
+  private applyMultipliers(points: number, _userId: string, type: PointTransactionType): number {
     let finalPoints = points;
 
     // Apply streak multiplier
-    if (this.hasActiveStreak(userId)) {
+    if (this.hasActiveStreak(_userId)) {
       finalPoints *= this.MULTIPLIERS.CONSECUTIVE_DAYS;
     }
 
     // Apply quality multiplier for interpretations
-    if (type === 'interpretation' && this.isQualityContent(userId)) {
+    if (type === 'interpretation' && this.isQualityContent(_userId)) {
       finalPoints *= this.MULTIPLIERS.QUALITY_CONTENT;
     }
 
     // Apply community favorite multiplier
-    if (this.isCommunityFavorite(userId)) {
+    if (this.isCommunityFavorite(_userId)) {
       finalPoints *= this.MULTIPLIERS.COMMUNITY_FAVORITE;
     }
 
     return Math.round(finalPoints);
   }
 
-  private async updateUserPoints(userId: string, points: number): Promise<void> {
+  private async updateUserPoints(_userId: string, _points: number): Promise<void> {
     // Update user's points in database
     // Implementation depends on your database setup
   }
@@ -125,32 +127,32 @@ class RewardSystem {
     }
   }
 
-  private checkCooldown(userId: string, type: PointTransactionType): boolean {
+  private checkCooldown(_userId: string, _type: PointTransactionType): boolean {
     // Implementation of cooldown checks
     return true;
   }
 
-  private hasActiveStreak(userId: string): boolean {
+  private hasActiveStreak(_userId: string): boolean {
     // Check if user has been active in consecutive days
     return true;
   }
 
-  private isQualityContent(userId: string): boolean {
+  private isQualityContent(_userId: string): boolean {
     // Analyze content quality based on engagement metrics
     return true;
   }
 
-  private isCommunityFavorite(userId: string): boolean {
+  private isCommunityFavorite(_userId: string): boolean {
     // Check if user's content is consistently well-received
     return true;
   }
 
-  private async getUserPoints(userId: string): Promise<number> {
+  private async getUserPoints(_userId: string): Promise<number> {
     // Get user's current points from database
     return 0;
   }
 
-  private async updateUserRank(userId: string, rank: typeof RANKS[number]): Promise<void> {
+  private async updateUserRank(_userId: string, _rank: typeof RANKS[number]): Promise<void> {
     // Update user's rank in database
   }
 }

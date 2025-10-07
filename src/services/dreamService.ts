@@ -1,8 +1,9 @@
 import { eq, and, desc, like, sql, or } from 'drizzle-orm';
+
 import { db } from '../db/index';
 import { dreams, dreamSymbols, users, engagement } from '../db/schema';
+
 import { logger } from './logger';
-import type { Dream } from '../types';
 
 interface CreateDreamData {
   userId: string;

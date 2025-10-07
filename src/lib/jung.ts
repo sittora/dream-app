@@ -127,7 +127,8 @@ export async function searchOpenLibrary(
     const response: OpenLibraryResponse = await fetchWithTimeout(url);
     return response.docs || [];
   } catch (error) {
-    console.error('Open Library search failed:', error);
+    const { logger } = await import('./logger.js');
+    logger.warn({ error }, 'Open Library search failed');
     return [];
   }
 }
@@ -140,7 +141,8 @@ export async function getArchiveMetadata(iaId: string): Promise<IAMetadataRespon
     const response: IAMetadataResponse = await fetchWithTimeout(url);
     return response;
   } catch (error) {
-    console.error(`Failed to fetch IA metadata for ${iaId}:`, error);
+    const { logger } = await import('./logger.js');
+    logger.warn({ error, iaId }, 'Failed to fetch IA metadata');
     return null;
   }
 }
@@ -219,7 +221,8 @@ export async function findJungBooks(
       
       results.push(result);
     } catch (error) {
-      console.error(`Error processing IA ID ${iaId}:`, error);
+      const { logger } = await import('./logger.js');
+      logger.warn({ error, iaId }, 'Error processing IA ID');
       // Continue processing other IDs
     }
   }

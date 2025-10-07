@@ -1,10 +1,11 @@
 import express from 'express';
-import { handleRegister } from './auth/register.js';
-import { handleEmailVerification } from './auth/verify.js';
+
 import { handleLogin, handleRefreshToken } from './auth/login.js';
 import { handleLogout, handleLogoutAll } from './auth/logout.js';
 import { authenticateToken, optionalAuth, getCurrentUser } from './auth/middleware.js';
+import { handleRegister } from './auth/register.js';
 import { getAuthStatus, getAuthHealth } from './auth/status.js';
+import { handleEmailVerification } from './auth/verify.js';
 
 const router = express.Router();
 

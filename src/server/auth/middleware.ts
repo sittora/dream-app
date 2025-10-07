@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { jwtVerify } from 'jose';
 import pino from 'pino';
+
 import { isTokenBlacklisted } from './logout.js';
 
 // Create logger instance

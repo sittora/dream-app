@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X, User } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface SearchBarProps {
   value: string;
@@ -49,7 +49,7 @@ const SearchBar = ({ value, onChange, onUserSelect, placeholder }: SearchBarProp
     } else {
       setShowUserSearch(false);
     }
-  }, [value]);
+  }, [value]); // TODO: review deps later – skipped in safe burndown
 
   const handleUserClick = (username: string) => {
     onUserSelect?.(`@${username}`);

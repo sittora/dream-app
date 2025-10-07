@@ -1,8 +1,9 @@
 import { type NextFunction, type Request, type Response } from 'express';
 import { jwtVerify } from 'jose';
+
+import { env } from '../config';
 import { logger } from '../services/logger';
 import { rateLimit } from '../services/rateLimit';
-import { env } from '../config';
 
 // Extend the Request interface to include user property
 interface AuthenticatedRequest extends Request {

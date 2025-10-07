@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+
+import bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
 import pino from 'pino';
+
+
 import { backupGenerateSchema } from './validators.js';
-import { encryptSensitiveData, decryptSensitiveData } from '../security/crypto.js';
 
 // Create logger instance
 const logger = pino({
@@ -26,7 +28,7 @@ interface BackupCodeRecord {
 }
 
 class BackupCodeDatabase {
-  async findByUserId(userId: string): Promise<BackupCodeRecord[]> {
+  async findByUserId(_userId: string): Promise<BackupCodeRecord[]> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement findByUserId with existing database layer');
     return [];
@@ -42,17 +44,17 @@ class BackupCodeDatabase {
     };
   }
 
-  async markUsed(codeId: string): Promise<void> {
+  async markUsed(_codeId: string): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement markUsed with existing database layer');
   }
 
-  async deleteAllForUser(userId: string): Promise<void> {
+  async deleteAllForUser(_userId: string): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement deleteAllForUser with existing database layer');
   }
 
-  async findUnusedByUserId(userId: string): Promise<BackupCodeRecord[]> {
+  async findUnusedByUserId(_userId: string): Promise<BackupCodeRecord[]> {
     // TODO: Implement with existing database layer - filter where usedAt is null
     logger.warn('TODO: Implement findUnusedByUserId with existing database layer');
     return [];
@@ -120,7 +122,7 @@ export async function generateBackupCodes(req: Request, res: Response): Promise<
       return;
     }
 
-    const { currentPassword } = validationResult.data;
+  const { currentPassword: _currentPassword } = validationResult.data;
 
     // TODO: Verify current password
     // if (!await verifyCurrentPassword(userId, currentPassword)) {

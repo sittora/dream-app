@@ -1,0 +1,388 @@
+openapi: 3.1.0
+info:
+  title: dream-app
+  version: 0.1.0
+  description: Minimal specification of currently implemented public API endpoints.
+tags:
+  - name: System
+    description: System and infrastructure endpoints
+  - name: Search
+    description: Content and search endpoints
+  - name: Auth
+    description: Authentication and identity endpoints
+servers:
+  - url: /
+    description: Root relative (behind proxy or local dev)
+paths:
+  /health:
+    get:
+      summary: Service health probe
+      operationId: getRootHealth
+      tags:
+        - System
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  service:
+                    type: string
+  /version:
+    get:
+      summary: Service version metadata
+      operationId: getVersionMeta
+      tags:
+        - System
+      responses:
+        "200":
+          description: Version info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  gitSha:
+                    type: string
+                  env:
+                    type: string
+  /api/health:
+    get:
+      summary: Health status of core API
+      operationId: getApiHealth
+      tags:
+        - System
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                  cache_size:
+                    type: integer
+  /api/jung-books:
+    get:
+      summary: Search Jung related books/resources
+      operationId: searchJungBooks
+      tags:
+        - Search
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: Search query text
+        - in: query
+          name: year
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: lang
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    author:
+                      type: string
+                    year:
+                      type: string
+                    source:
+                      type: string
+        "400":
+          description: Invalid query parameters
+  /api/auth/health:
+    get:
+      summary: Authentication service health check
+      operationId: getAuthHealth
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: Health payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      service:
+                        type: string
+                      status:
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+  /api/auth/test:
+    get:
+      summary: Simple auth test endpoint
+      operationId: getAuthTest
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: Test message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      operationId: postAuthRegister
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: Validation error
+        "409":
+          description: Email already registered
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      operationId: postAuthLogin
+      summary: Authenticate user and issue tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Validation or credential error
+        "401":
+          description: Invalid credentials
+  /api/auth/refresh:
+    post:
+      tags:
+        - Auth
+      operationId: postAuthRefresh
+      summary: Refresh access token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "200":
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshResponse"
+        "401":
+          description: Invalid or expired refresh token
+  /api/auth/logout:
+    post:
+      summary: Invalidate the current session refresh token
+      operationId: postAuthLogout
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: Logged out
+  /api/auth/me:
+    get:
+      summary: Get current authenticated user profile
+      operationId: getAuthMe
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  email:
+                    type: string
+                  username:
+                    type: string
+        "401":
+          description: Unauthorized
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          minLength: 3
+          maxLength: 200
+        password:
+          type: string
+          minLength: 1
+      required:
+        - email
+        - password
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+          minLength: 1
+          maxLength: 100
+        password:
+          type: string
+          minLength: 8
+          maxLength: 200
+      required:
+        - email
+        - username
+        - password
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          minLength: 10
+      required:
+        - refreshToken
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                username:
+                  type: string
+                profileImage:
+                  type: string
+                  nullable: true
+                points:
+                  type: number
+                  nullable: true
+                level:
+                  type: number
+                  nullable: true
+                rank:
+                  type: string
+                  nullable: true
+                mfaEnabled:
+                  type: boolean
+                  nullable: true
+            expiresIn:
+              type: string
+      required:
+        - data
+    RegisterResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+              format: email
+            displayName:
+              type: string
+              nullable: true
+            emailVerified:
+              type: boolean
+        message:
+          type: string
+      required:
+        - user
+    RefreshResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            expiresIn:
+              type: string
+      required:
+        - data

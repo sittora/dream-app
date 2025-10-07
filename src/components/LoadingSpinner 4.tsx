@@ -1,6 +1,6 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
+import React from 'react';
 
 interface LoadingSpinnerProps {
   message?: string;

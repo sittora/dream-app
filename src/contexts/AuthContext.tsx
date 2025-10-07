@@ -25,6 +25,8 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
+// Intentional: exporting context from same module as provider; acceptable for Vite HMR.
+// eslint-disable-next-line react-refresh/only-export-components -- context pattern is intentional
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -105,59 +107,51 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [checkAuth]);
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await authService.login({ email, password });
-      localStorage.setItem('token', response.accessToken);
-      
-      // Create a mock user for now
-      const mockUser: User = {
-        id: '1',
-        email,
-        username: email.split('@')[0],
-        profileImage: undefined,
-        bio: undefined,
-        socialLinks: undefined,
-        dreamStats: {
-          totalDreams: 0,
-          publicDreams: 0,
-          privateDreams: 0,
-          totalLikes: 0,
-          totalComments: 0,
-          totalSaves: 0,
-        },
-        engagement: {
-          followers: [],
-          following: [],
-          blockedUsers: [],
-          notifications: [],
-        },
-        preferences: {
-          emailNotifications: true,
-          pushNotifications: true,
-          privateAccount: false,
-          showEngagementStats: true,
-          allowMessages: 'everyone',
-        },
-        points: 0,
-        level: 1,
-        insightRank: 'Dreamer Initiate',
-        friends: [],
-        dreamAnalysisCount: 0,
-      };
-      setUser(mockUser);
-    } catch (error) {
-      throw error;
-    }
+    const response = await authService.login({ email, password });
+    localStorage.setItem('token', response.accessToken);
+
+    // Create a mock user for now
+    const mockUser: User = {
+      id: '1',
+      email,
+      username: email.split('@')[0],
+      profileImage: undefined,
+      bio: undefined,
+      socialLinks: undefined,
+      dreamStats: {
+        totalDreams: 0,
+        publicDreams: 0,
+        privateDreams: 0,
+        totalLikes: 0,
+        totalComments: 0,
+        totalSaves: 0,
+      },
+      engagement: {
+        followers: [],
+        following: [],
+        blockedUsers: [],
+        notifications: [],
+      },
+      preferences: {
+        emailNotifications: true,
+        pushNotifications: true,
+        privateAccount: false,
+        showEngagementStats: true,
+        allowMessages: 'everyone',
+      },
+      points: 0,
+      level: 1,
+      insightRank: 'Dreamer Initiate',
+      friends: [],
+      dreamAnalysisCount: 0,
+    };
+    setUser(mockUser);
   };
 
   const register = async (email: string, username: string, password: string) => {
-    try {
-      await authService.register({ email, username, password });
-      // After successful registration, log the user in
-      await login(email, password);
-    } catch (error) {
-      throw error;
-    }
+    await authService.register({ email, username, password });
+    // After successful registration, log the user in
+    await login(email, password);
   };
 
   const logout = () => {

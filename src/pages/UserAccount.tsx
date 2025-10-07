@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Camera, Link as LinkIcon, Edit2, UserPlus, UserMinus, Mail, Globe, Twitter, Instagram } from 'lucide-react';
-import BackButton from '../components/BackButton';
-import type { User as UserType } from '../types';
-import { useAuth } from '../hooks/useAuth';
+import { User, Camera, Link as LinkIcon, Edit2, UserPlus, UserMinus, Mail, Globe, Twitter, Instagram, Trash2, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import BackButton from '../components/BackButton';
+import { useAuth } from '../hooks/useAuth';
+import type { User as UserType } from '../types';
 
 interface SocialLink {
   platform: string;
@@ -25,7 +26,9 @@ const UserAccount = () => {
   const [editedUser, setEditedUser] = useState<UserType | null>(user);
   const [selectedTab, setSelectedTab] = useState<'profile' | 'friends'>('profile');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSaving, _setIsSaving] = useState(false); // _setIsSaving kept for future extended save state management
+  const [linkErrors, setLinkErrors] = useState<Record<string,string>>({});
+  const [newLink, setNewLink] = useState<{ platform: string; url: string }>({ platform: '', url: '' });
 
   // Import updateUser lazily to avoid circular deps at top-level
   const saveToServer = async (userId: string, payload: any) => {
@@ -47,12 +50,29 @@ const UserAccount = () => {
     }
   };
 
+  const normalizeUrl = (u: string) => {
+    if (!u) return '';
+    const trimmed = u.trim();
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    // If user pasted something like example.com, prepend https://
+    return `https://${trimmed}`;
+  };
+
+  const isValidUrl = (u: string) => {
+    try {
+      const _ = new URL(normalizeUrl(u));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const handleSave = () => {
     if (!authUser || !editedUser) return;
     // Optimistic update
     const previous = user;
     setUser(editedUser as UserType);
-    setIsSaving(true);
+  _setIsSaving(true);
     setStatusMessage(null);
 
     const payload = {
@@ -70,10 +90,11 @@ const UserAccount = () => {
         setUser(previous as UserType);
         setEditedUser(previous as UserType);
         setStatusMessage('Failed to save changes. Please try again.');
-        console.error('Failed to update user:', err);
+  // eslint-disable-next-line no-console -- intentional dev telemetry for failed profile save
+  console.error('Failed to update user:', err);
       })
       .finally(() => {
-        setIsSaving(false);
+  _setIsSaving(false);
         setIsEditing(false);
       });
   };
@@ -212,20 +233,191 @@ const UserAccount = () => {
                     <div>
                       <label className="block text-sm font-medium mb-1">Social Links</label>
                       <div className="space-y-3">
-                        {editedUser?.socialLinks?.map((link, index) => (
+                        {/* Dedicated fields for Instagram, X (Twitter), and Substack with validation */}
+                        {([
+                          { platform: 'Instagram', Icon: Instagram, placeholder: 'https://instagram.com/yourhandle' },
+                          { platform: 'X', Icon: Twitter, placeholder: 'https://x.com/yourhandle' },
+                          { platform: 'Substack', Icon: Globe, placeholder: 'https://yourname.substack.com' }
+                        ] as const).map(({ platform, Icon, placeholder }) => {
+                          const idx = editedUser?.socialLinks?.findIndex(s => s.platform === platform) ?? -1;
+                          const current = idx >= 0 ? editedUser!.socialLinks![idx].url : '';
+                          return (
+                            <div key={platform} className="flex items-center gap-2">
+                              <Icon className="w-4 h-4 text-burgundy" />
+                              <div className="relative flex-1">
+                                <input
+                                  type="url"
+                                  value={current}
+                                  onChange={(e) => {
+                                  const urlRaw = e.target.value;
+                                  const url = urlRaw;
+                                  setEditedUser(prev => {
+                                    if (!prev) return prev;
+                                    const existing = [...(prev.socialLinks || [])];
+                                    const existingIdx = existing.findIndex(l => l.platform === platform);
+                                    if (existingIdx >= 0) {
+                                      existing[existingIdx] = { ...existing[existingIdx], url };
+                                    } else {
+                                      existing.push({ platform, url, icon: Icon });
+                                    }
+                                    return { ...prev, socialLinks: existing };
+                                  });
+                                  // Validate
+                                  setLinkErrors(prev => ({ ...prev, [platform]: url ? (isValidUrl(url) ? '' : 'Enter a valid URL') : '' }));
+                                }}
+                                onBlur={(e) => {
+                                  // normalize on blur
+                                  const raw = e.target.value;
+                                  if (!raw) return;
+                                  const normalized = normalizeUrl(raw);
+                                  setEditedUser(prev => {
+                                    if (!prev) return prev;
+                                    const existing = [...(prev.socialLinks || [])];
+                                    const existingIdx = existing.findIndex(l => l.platform === platform);
+                                    if (existingIdx >= 0) {
+                                      existing[existingIdx] = { ...existing[existingIdx], url: normalized };
+                                    } else {
+                                      existing.push({ platform, url: normalized, icon: Icon });
+                                    }
+                                    return { ...prev, socialLinks: existing };
+                                  });
+                                }}
+                                 placeholder={placeholder}
+                                 className={`input-field ${linkErrors[platform] ? 'border-red-400 ring-1 ring-red-400' : (current && isValidUrl(current) ? 'ring-2 ring-green-400 border-green-300' : '')}`}
+                                />
+                                {current && isValidUrl(current) && !linkErrors[platform] && (
+                                  <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                                    <CheckCircle className="w-4 h-4 text-green-400" />
+                                  </span>
+                                )}
+                              </div>
+                              {linkErrors[platform] && <div className="text-sm text-red-400">{linkErrors[platform]}</div>}
+                            </div>
+                          );
+                        })}
+
+                        {/* Add another custom link UI */}
+                        <div className="flex gap-2 items-center">
+                          <input
+                            type="text"
+                            value={newLink.platform}
+                            onChange={(e) => setNewLink(n => ({ ...n, platform: e.target.value }))}
+                            placeholder="Platform name (e.g. Mastodon)"
+                            className={`input-field ${linkErrors['_new_platform'] ? 'border-red-400 ring-1 ring-red-400' : ''}`}
+                          />
+                          <div className="relative flex-1">
+                            <input
+                              type="url"
+                              value={newLink.url}
+                              onChange={(e) => setNewLink(n => ({ ...n, url: e.target.value }))}
+                              placeholder="https://yourprofile.example"
+                              className={`input-field ${newLink.url && isValidUrl(newLink.url) ? 'ring-2 ring-green-400 border-green-300' : (newLink.url ? 'border-red-400 ring-1 ring-red-400' : '')}`}
+                            />
+                            {newLink.url && isValidUrl(newLink.url) && (
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                                <CheckCircle className="w-4 h-4 text-green-400" />
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => {
+                              const platform = newLink.platform.trim();
+                              const url = newLink.url.trim();
+                              if (!platform) {
+                                setStatusMessage('Please enter a platform name');
+                                setLinkErrors(prev => ({ ...prev, ['_new_platform']: 'Enter a name' }));
+                                return;
+                              }
+                              if (!url || !isValidUrl(url)) {
+                                setStatusMessage('Please enter a valid URL for the new link');
+                                setLinkErrors(prev => ({ ...prev, ['_new_url']: 'Enter a valid URL' }));
+                                return;
+                              }
+                              setEditedUser(prev => {
+                                if (!prev) return prev;
+                                const existing = [...(prev.socialLinks || [])];
+                                // avoid duplicates
+                                const idx = existing.findIndex(l => l.platform.toLowerCase() === platform.toLowerCase());
+                                const normalized = normalizeUrl(url);
+                                if (idx >= 0) existing[idx] = { ...existing[idx], url: normalized };
+                                else existing.push({ platform, url: normalized, icon: LinkIcon });
+                                return { ...prev, socialLinks: existing };
+                              });
+                              setNewLink({ platform: '', url: '' });
+                              setStatusMessage(null);
+                              setLinkErrors(prev => {
+                                const copy = { ...prev };
+                                delete copy['_new_platform'];
+                                delete copy['_new_url'];
+                                return copy;
+                              });
+                            }}
+                            className="btn-secondary"
+                          >
+                            Add Link
+                          </button>
+                        </div>
+
+                        {/* Keep any other custom social links the user already has (non-Instagram/X/Substack) */}
+                        {editedUser?.socialLinks?.filter(s => !['Instagram','X','Substack'].includes(s.platform)).map((link) => (
                           <div key={link.platform} className="flex items-center gap-2">
-                            <link.icon className="w-4 h-4 text-burgundy" />
+                            {link.icon ? (
+                              <link.icon className="w-4 h-4 text-burgundy" />
+                            ) : (
+                              <LinkIcon className="w-4 h-4 text-burgundy" />
+                            )}
                             <input
                               type="url"
                               value={link.url}
                               onChange={(e) => {
-                                const newLinks = [...(editedUser?.socialLinks || [])];
-                                newLinks[index] = { ...link, url: e.target.value };
-                                setEditedUser(prev => prev ? ({ ...prev, socialLinks: newLinks }) : prev);
+                                const url = e.target.value;
+                                setEditedUser(prev => {
+                                  if (!prev) return prev;
+                                  const existing = [...(prev.socialLinks || [])];
+                                  const idx = existing.findIndex(l => l.platform === link.platform);
+                                  if (idx >= 0) {
+                                    existing[idx] = { ...existing[idx], url };
+                                  } else {
+                                    existing.push({ platform: link.platform, url, icon: link.icon });
+                                  }
+                                  return { ...prev, socialLinks: existing };
+                                });
+                                setLinkErrors(prev => ({ ...prev, [link.platform]: url ? (isValidUrl(url) ? '' : 'Enter a valid URL') : '' }));
+                              }}
+                              onBlur={(e) => {
+                                const raw = e.target.value;
+                                if (!raw) return;
+                                const normalized = normalizeUrl(raw);
+                                setEditedUser(prev => {
+                                  if (!prev) return prev;
+                                  const existing = [...(prev.socialLinks || [])];
+                                  const existingIdx = existing.findIndex(l => l.platform === link.platform);
+                                  if (existingIdx >= 0) {
+                                    existing[existingIdx] = { ...existing[existingIdx], url: normalized };
+                                  } else {
+                                    existing.push({ platform: link.platform, url: normalized, icon: link.icon });
+                                  }
+                                  return { ...prev, socialLinks: existing };
+                                });
                               }}
                               placeholder={`Your ${link.platform} URL`}
                               className="input-field"
                             />
+                            <button
+                              onClick={() => {
+                                setEditedUser(prev => {
+                                  if (!prev) return prev;
+                                  const existing = [...(prev.socialLinks || [])];
+                                  const filtered = existing.filter(l => l.platform !== link.platform);
+                                  return { ...prev, socialLinks: filtered };
+                                });
+                              }}
+                              className="p-2 hover:bg-burgundy/20 rounded-lg transition-colors text-burgundy"
+                              title={`Remove ${link.platform}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                            {linkErrors[link.platform] && <div className="text-sm text-red-400">{linkErrors[link.platform]}</div>}
                           </div>
                         ))}
                       </div>

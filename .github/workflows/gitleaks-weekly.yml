@@ -1,0 +1,25 @@
+name: "Gitleaks Weekly Scan"
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gitleaks Full Repo Scan
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect -v --redact
+      # Optional Slack notification if secret detected and webhook configured
+      - name: Slack notify (on failure)
+        if: failure()
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":\"Gitleaks found secrets on ${GITHUB_REPOSITORY}@${GITHUB_SHA:0:7}. See run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+              "${{ secrets.SLACK_WEBHOOK }}"
+          fi

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import pino from 'pino';
-import { registrationSchema } from './validators.js';
+
 import { hashPassword } from './hash.js';
 import { registrationRateLimiter } from './rateLimit.js';
+import { registrationSchema } from './validators.js';
 import { sendVerificationEmail } from './verify.js';
 
 // Create logger instance
@@ -65,7 +66,7 @@ class UserDatabase {
     return user;
   }
 
-  async updateEmailVerified(userId: string, verified: boolean): Promise<void> {
+  async updateEmailVerified(_userId: string, _verified: boolean): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement updateEmailVerified with existing database layer');
   }

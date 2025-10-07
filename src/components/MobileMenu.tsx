@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogIn, UserPlus, LogOut, User } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+
 import { navItems } from '../config/navigation';
+import { useAuth } from '../hooks/useAuth';
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,18 +63,7 @@ const MobileMenu = () => {
                   {user ? (
                     /* Logged in state */
                     <>
-                      <Link
-                        to="/account"
-                        onClick={() => setIsOpen(false)}
-                        className={`flex items-center gap-3 py-3 px-4 rounded-lg transition-colors ${
-                          location.pathname === '/account'
-                            ? 'bg-burgundy/20 text-burgundy'
-                            : 'text-gray-400 hover:text-gray-200'
-                        }`}
-                      >
-                        <User className="w-5 h-5" />
-                        <span className="font-medium">Profile</span>
-                      </Link>
+                      {/* Profile link removed to avoid duplicate account buttons; use the navbar account link instead */}
                       <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors text-gray-400 hover:text-red-400 w-full text-left"

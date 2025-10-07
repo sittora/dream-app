@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { MessageCircle, Heart, Share2, Award, UserPlus } from 'lucide-react';
-import type { Dream, User, Comment } from '../types';
-import RankBadge from './RankBadge';
+import { useState } from 'react';
+
+import type { User } from '../types';
+
 
 interface DreamWebProps {
   currentUser: User;
 }
 
-const DreamWeb = ({ currentUser }: DreamWebProps) => {
+const DreamWeb = ({ currentUser: _currentUser }: DreamWebProps) => {
   const [selectedTab, setSelectedTab] = useState<'trending' | 'latest' | 'following'>('trending');
 
   return (

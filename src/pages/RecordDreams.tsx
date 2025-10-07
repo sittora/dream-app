@@ -1,15 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import { isSameDay } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Calendar as CalendarIcon, Search, Plus, Hash } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
-import DreamForm from '../components/DreamForm';
-import DreamCard from '../components/DreamCard';
-import DreamCalendar from '../components/DreamCalendar';
-import DreamDetail from '../components/DreamDetail';
+import React, { useState, useMemo } from 'react';
+
 import BackButton from '../components/BackButton';
+import DreamCalendar from '../components/DreamCalendar';
+import DreamCard from '../components/DreamCard';
+import DreamDetail from '../components/DreamDetail';
+import DreamForm from '../components/DreamForm';
 // import { dreamService } from '../services/dreamService';
 import { useAuth } from '../hooks/useAuth';
-import { env } from '../config';
 import type { Dream } from '../types';
 
 const RecordDreams = () => {
@@ -21,9 +21,10 @@ const RecordDreams = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDream, setSelectedDream] = useState<Dream | null>(null);
   const [symbolFilter, setSymbolFilter] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false); // _setIsLoading unused currently (placeholder for future async ops)
 
   // Temporarily disable database loading
+  // Dev note: console kept intentionally for UX telemetry during feature buildout.
   console.log('RecordDreams component loaded');
 
   const filteredDreams = useMemo(() => {
@@ -70,11 +71,13 @@ const RecordDreams = () => {
       } as Dream;
 
   // Prepend so latest appears first
+  // eslint-disable-next-line no-console -- intentional dev telemetry (dream creation)
   console.log('RecordDreams: received new dream from form', localDream);
   setDreams(prev => [localDream, ...prev]);
   setShowDreamForm(false);
 
       // Persist to backend with client-side retry queue
+  // eslint-disable-next-line no-console -- intentional dev telemetry (enqueue persistence)
   console.log('RecordDreams: enqueueing for persistence', localDream);
   enqueuePendingLocal(localDream);
     } catch (error) {
@@ -146,23 +149,26 @@ const RecordDreams = () => {
     setShowCalendar(false);
   };
 
-  const handleLike = async (dreamId: number) => {
+  const handleLike = async (_dreamId: number) => {
     if (!user?.id) return;
 
     try {
       // Temporarily disable database like functionality
-      console.log('Like functionality temporarily disabled');
+  // eslint-disable-next-line no-console -- intentional placeholder for future like implementation
+  console.log('Like functionality temporarily disabled');
     } catch (error) {
       console.error('Failed to toggle like:', error);
     }
   };
 
-  const handleComment = (dreamId: number) => {
-    console.log('Comment functionality not implemented yet');
+  const handleComment = (_dreamId: number) => {
+  // eslint-disable-next-line no-console -- placeholder for upcoming comment feature
+  console.log('Comment functionality not implemented yet');
   };
 
-  const handleShare = (dreamId: number) => {
-    console.log('Share functionality not implemented yet');
+  const handleShare = (_dreamId: number) => {
+  // eslint-disable-next-line no-console -- placeholder for upcoming share feature
+  console.log('Share functionality not implemented yet');
   };
 
   const handleView = (dreamId: number) => {
@@ -176,11 +182,6 @@ const RecordDreams = () => {
     setSymbolFilter(symbol);
   };
 
-  const clearFilters = () => {
-    setSelectedDate(undefined);
-    setSearchQuery('');
-    setSymbolFilter('');
-  };
 
   return (
     <div className="min-h-screen bg-mystic-900">

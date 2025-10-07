@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Save, X, Loader, Eye, EyeOff } from 'lucide-react';
+import React, { useState } from 'react';
+
 import { analyzeDream } from '../services/dreamAnalysis';
 import type { Dream } from '../types';
 

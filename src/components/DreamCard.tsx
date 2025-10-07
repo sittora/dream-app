@@ -1,6 +1,7 @@
-import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Eye, Calendar, Hash } from 'lucide-react';
+import { useRef } from 'react';
+
 import type { Dream } from '../types';
 
 interface DreamCardProps {

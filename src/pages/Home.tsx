@@ -1,7 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { Feather, Brain, Share2, Sparkles, Moon, Star, Eye, BookOpen } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();

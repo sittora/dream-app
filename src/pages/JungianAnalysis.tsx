@@ -1,28 +1,16 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Search } from 'lucide-react';
-import type { Dream, AnalysisResult } from '../types';
-import { analyzeDream } from '../services/dreamAnalysis';
+import React, { useState } from 'react'; // React retained for potential JSX runtime differences
+
 import BackButton from '../components/BackButton';
+import type { Dream, AnalysisResult } from '../types';
 
 const JungianAnalysis = () => {
-  const [selectedDream, setSelectedDream] = useState<Dream | null>(null);
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [_selectedDream, _setSelectedDream] = useState<Dream | null>(null);
+  const [analysis, _setAnalysis] = useState<AnalysisResult | null>(null);
+  const [isAnalyzing, _setIsAnalyzing] = useState(false);
 
-  const handleAnalyze = async (dream: Dream) => {
-    setIsAnalyzing(true);
-    setSelectedDream(dream);
-    
-    try {
-      const result = await analyzeDream(dream);
-      setAnalysis(result);
-    } catch (error) {
-      console.error('Analysis failed:', error);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+  // Analysis handler will be wired once dream selection UI is implemented.
 
   return (
     <div className="relative">

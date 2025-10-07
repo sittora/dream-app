@@ -1,7 +1,7 @@
+import { Bell, Mail, Eye, Lock, MessageCircle } from 'lucide-react';
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Bell, Mail, Eye, Lock, MessageCircle, Heart, UserPlus } from 'lucide-react';
-import type { User, NotificationSetting } from '../types';
+
+import type { User } from '../types';
 
 interface EngagementSettingsProps {
   user: User;

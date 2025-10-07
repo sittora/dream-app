@@ -1,6 +1,8 @@
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 
+import { logger } from '../lib/logger.browser';
+
 const APP_NAME = 'Anima Insights';
 
 export async function generateTOTP(userEmail: string) {
@@ -11,7 +13,7 @@ export async function generateTOTP(userEmail: string) {
 
     return { secret, qrCode };
   } catch (error) {
-    console.error('Failed to generate TOTP:', error);
+    logger.error({ error }, 'Failed to generate TOTP');
     throw new Error('Failed to generate MFA credentials');
   }
 }
@@ -20,7 +22,7 @@ export function verifyTOTP(token: string, secret: string): boolean {
   try {
     return authenticator.verify({ token, secret });
   } catch (error) {
-    console.error('Failed to verify TOTP:', error);
+    logger.error({ error }, 'Failed to verify TOTP');
     return false;
   }
 }

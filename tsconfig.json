@@ -16,8 +16,9 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+  // Enforce unused detection (aligned with ESLint hardening)
+  "noUnusedLocals": true,
+  "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     
     /* Paths */

@@ -1,11 +1,13 @@
+import { motion } from 'framer-motion';
+import { Moon, UserPlus, LogOut, User } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Moon, LogIn, UserPlus, LogOut, User } from 'lucide-react';
-import { motion } from 'framer-motion';
+
+import { navItems } from '../config';
+import { useAuth } from '../hooks/useAuth';
+
 import MobileMenu from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
-import { useAuth } from '../hooks/useAuth';
-import { navItems } from '../config';
 
 // Combined Login / Sign Up button that reveals a small dropdown
 const AuthCombo: React.FC = () => {
@@ -125,7 +127,7 @@ const Navbar = () => {
               <span className="logo-sparkle" style={{ left: '14px', top: '-6px', animationDelay: '0.3s' }} />
               <span className="logo-sparkle" style={{ left: '26px', top: '8px', animationDelay: '0.6s' }} />
               <span className="logo-ring" aria-hidden="true" />
-              <Moon className="w-6 h-6 text-burgundy relative z-10" />
+              <Moon className="logo-moon w-6 h-6 text-burgundy relative z-10" />
             </motion.div>
             
             <div className="title-font text-xl hidden sm:inline relative">

@@ -1,5 +1,6 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+
 import type { Dream } from '../types';
 
 interface DreamCalendarProps {

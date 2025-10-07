@@ -43,13 +43,15 @@ export async function findJungBooks(
     const response = await fetch(`/api/jung-books?${params.toString()}`);
     
     if (!response.ok) {
-      console.error('Jung books API error:', response.status, response.statusText);
+      const { logger } = await import('../lib/logger.js');
+      logger.warn({ status: response.status, statusText: response.statusText }, 'Jung books API error');
       return [];
     }
     
     return (await response.json()) as JungBookResult[];
   } catch (error) {
-    console.error('Failed to fetch Jung books:', error);
+    const { logger } = await import('../lib/logger.js');
+    logger.warn({ error }, 'Failed to fetch Jung books');
     return [];
   }
 }

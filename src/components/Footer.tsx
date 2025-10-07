@@ -1,7 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Moon, Github, Twitter, Mail, Heart } from 'lucide-react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+
 import { env } from '../config';
 
 const Footer = () => {

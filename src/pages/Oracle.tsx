@@ -1,9 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Sparkles, Bot, Moon, Brain, Book, Loader } from 'lucide-react';
-import TextareaAutosize from 'react-textarea-autosize';
-import BackButton from '../components/BackButton';
 import OpenAI from 'openai';
+import React, { useState, useRef, useEffect } from 'react';
+import TextareaAutosize from 'react-textarea-autosize';
+
+import BackButton from '../components/BackButton';
+
 
 interface Message {
   id: string;
@@ -78,7 +80,7 @@ const Oracle = () => {
     timestamp: new Date(),
   }]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [_isTyping, _setIsTyping] = useState(false); // reserved for future typing indicator
   const [activeArchetype, setActiveArchetype] = useState<string>('The Shadow');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isThinking, setIsThinking] = useState(false);
@@ -102,16 +104,19 @@ const Oracle = () => {
         return;
       }
       
-      console.log('Testing API connection...');
+  // Dev note: console kept intentionally for API connectivity telemetry.
+  console.log('Testing API connection...');
       try {
-        const testCompletion = await openai.chat.completions.create({
+  await openai.chat.completions.create({
           model: "gpt-4",
           messages: [{ role: 'user', content: 'Hello' }],
           max_tokens: 10
         });
-        console.log('API connection successful');
+  // eslint-disable-next-line no-console -- intentional success telemetry
+  console.log('API connection successful');
       } catch (error) {
-        console.error('API connection test failed:', error);
+  // eslint-disable-next-line no-console -- intentional error telemetry for early API failures
+  console.error('API connection test failed:', error);
       }
     };
     
@@ -246,8 +251,7 @@ Respond in a thoughtful, analytical yet accessible manner. Provide specific insi
   };
 
   const generateFallbackResponse = (userMessage: string) => {
-    const userSymbols = extractSymbols(userMessage);
-    const lowerMessage = userMessage.toLowerCase();
+  const userSymbols = extractSymbols(userMessage);
     
     let response = "I'm currently in offline mode, but I can still offer some insights based on Jungian psychology.\n\n";
     

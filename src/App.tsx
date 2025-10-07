@@ -1,18 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+
 import ErrorBoundary from './components/ErrorBoundary';
+import Footer from './components/Footer';
+import Navbar from './components/Navbar';
 import { AuthProvider } from './contexts/AuthContext';
-import Home from './pages/Home';
-import RecordDreams from './pages/RecordDreams';
-import JungianAnalysis from './pages/JungianAnalysis';
 import DreamWeb from './pages/DreamWeb';
+import Home from './pages/Home';
+import JungianAnalysis from './pages/JungianAnalysis';
+import Login from './pages/Login';
 import Oracle from './pages/Oracle';
+import RecordDreams from './pages/RecordDreams';
+import Register from './pages/Register';
 import Resources from './pages/Resources';
 import UserAccount from './pages/UserAccount';
-import Login from './pages/Login';
-import Register from './pages/Register';
 
 const App: React.FC = () => {
   return (

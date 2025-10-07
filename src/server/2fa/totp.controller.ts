@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import { authenticator } from 'otplib';
-import QRCode from 'qrcode';
 import pino from 'pino';
-import { totpEnrollSchema, totpVerifySchema, totpDisableSchema } from './validators.js';
+import QRCode from 'qrcode';
+
+
 import { encryptSensitiveData, decryptSensitiveData } from '../security/crypto.js';
 import { createRateLimitMiddleware } from '../security/rateLimit.js';
+
+import { totpEnrollSchema, totpVerifySchema, totpDisableSchema } from './validators.js';
 
 // Create logger instance
 const logger = pino({
@@ -29,7 +32,7 @@ interface TwoFactorRecord {
 }
 
 class TwoFactorDatabase {
-  async findByUserId(userId: string): Promise<TwoFactorRecord | null> {
+  async findByUserId(_userId: string): Promise<TwoFactorRecord | null> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement findByUserId with existing database layer');
     return null;
@@ -41,12 +44,12 @@ class TwoFactorDatabase {
     return { ...record, activatedAt: new Date() };
   }
 
-  async update(userId: string, updates: Partial<TwoFactorRecord>): Promise<void> {
+  async update(_userId: string, _updates: Partial<TwoFactorRecord>): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement update with existing database layer');
   }
 
-  async delete(userId: string): Promise<void> {
+  async delete(_userId: string): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement delete with existing database layer');
   }
@@ -229,7 +232,7 @@ export async function disableTOTP(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { code, currentPassword } = validationResult.data;
+  const { code, currentPassword: _currentPassword } = validationResult.data;
 
     // TODO: Verify current password
     // if (!await verifyCurrentPassword(userId, currentPassword)) {
@@ -327,7 +330,7 @@ export async function verifyLoginTOTP(req: Request, res: Response): Promise<void
     // This would be called after successful password verification
     // when 2FA is enabled for the account
     
-    const { challengeId, code } = req.body;
+  const { challengeId: _challengeId, code: _code } = req.body;
     
     // TODO: Validate challenge ID and get associated user
     // TODO: Verify TOTP code

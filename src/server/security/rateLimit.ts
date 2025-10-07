@@ -1,4 +1,4 @@
-import { RateLimiterRedis, RateLimiterMemory } from 'rate-limiter-flexible';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 /**
  * Advanced rate limiting with brute-force protection
@@ -246,7 +246,14 @@ export function createRateLimitMiddleware(type: 'login' | 'registration' | '2fa'
 
       next();
     } catch (error) {
-      console.error('Rate limiting error:', error);
+      // Swallow rate limiter internal error but log via structured logger
+      try {
+  const { logger } = await import('../../lib/logger.server.js');
+        logger.warn({ error }, 'Rate limiting error');
+      } catch (e) {
+        // Intentionally ignored: optional logger import failure should not block request flow.
+        // TODO: consider debug-level instrumentation if recurring.
+      }
       // Don't block on rate limiter errors
       next();
     }

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { z } from 'zod';
+
 import { register } from '../services/auth';
 
 const registerSchema = z.object({

@@ -1,6 +1,8 @@
-# Environment variables and secrets
+### Environment & secrets
+# Keep real env files out of git; only commit the single .env.example
 .env
 .env.*
+!.env.example
 .env.local
 .env.development.local
 .env.test.local
@@ -29,13 +31,13 @@ config/secrets.json
 config/production.json
 config/staging.json
 
-# Build outputs
+### Build outputs
 dist/
 build/
 .vite/
 .next/
 
-# Dependencies
+### Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -76,8 +78,11 @@ config/production.json
 *.crt
 *.p12
 *.pfx
+*.cert
+*.der
+*.keystore
 
-# IDE and editor files
+### IDE/editor
 .vscode/
 .idea/
 *.swp
@@ -86,7 +91,7 @@ config/production.json
 .DS_Store
 Thumbs.db
 
-# OS generated files
+### OS
 .DS_Store
 .DS_Store?
 ._*
@@ -101,7 +106,7 @@ temp/
 *.tmp
 *.temp
 
-# Cache directories
+### Caches
 .cache/
 .parcel-cache/
 .nuxt/
@@ -125,6 +130,8 @@ storybook-static/
 
 # Output of 'npm pack'
 *.tgz
+*.zip
+*.tar
 
 # Yarn Integrity file
 .yarn-integrity
@@ -133,7 +140,7 @@ storybook-static/
 .local/
 local.json
 
-# User-specific sensitive data
+### User uploaded / potentially sensitive
 user-data/
 uploads/
 user-uploads/
@@ -147,7 +154,7 @@ private/
 backup/
 backups/
 
-# Analytics and tracking
+### Analytics & tracking
 analytics-data/
 tracking/
 *.analytics
@@ -162,3 +169,4 @@ sessions/
 tokens/
 .sessions
 .tokens
+reports/

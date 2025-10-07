@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, Heart, Share2, Crown, Eye, Star, Sparkles, Search } from 'lucide-react';
-import type { Dream, User, Comment } from '../types';
-import Messaging from '../components/Messaging';
+import { MessageCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
 import BackButton from '../components/BackButton';
 import SearchBar from '../components/SearchBar';
+import type { Dream } from '../types';
 
 const DreamWeb = () => {
   const [publicDreams, setPublicDreams] = useState<Dream[]>([]);

@@ -1,7 +1,8 @@
-import { db } from '../db/index';
 import { eq, desc, sql } from 'drizzle-orm';
+
+import { db } from '../db/index';
 import { 
-  users, dreams, dreamSymbols, comments, 
+  users, dreams, dreamSymbols, 
   engagement, points, messages, notifications
 } from '../db/schema';
 import type { NewUser, NewDream } from '../types';

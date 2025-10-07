@@ -2,7 +2,6 @@
  * Extended Express types for authentication and security
  */
 
-import { Request as ExpressRequest } from 'express';
 
 declare global {
   namespace Express {

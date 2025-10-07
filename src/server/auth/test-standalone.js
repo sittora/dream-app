@@ -6,6 +6,8 @@
  */
 
 import express from 'express';
+
+import { logger } from '../../lib/logger.server.js';
 import { authRouter } from '../routes.auth.js';
 
 const app = express();
@@ -42,7 +44,7 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  logger.error({ err }, 'Standalone auth error');
   res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -51,17 +53,17 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🔐 Auth API server running at http://localhost:${PORT}`);
-  console.log(`📋 Test registration: curl -X POST http://localhost:${PORT}/api/auth/register -H 'Content-Type: application/json' -d '{"email":"test@example.com","password":"Abc12345","displayName":"Test"}'`);
+  logger.info({ port: PORT }, 'Auth API server running');
+  logger.info({ port: PORT }, 'Test registration: POST /api/auth/register { email,password,displayName }');
   
   // Run a self-test after a short delay
   setTimeout(async () => {
     try {
       const response = await fetch(`http://localhost:${PORT}/api/health`);
       const data = await response.json();
-      console.log('✅ Health check passed:', data);
+      logger.info({ data }, 'Health check passed');
     } catch (error) {
-      console.log('❌ Health check failed:', error.message);
+      logger.error({ err: error }, 'Health check failed');
     }
   }, 1000);
 });

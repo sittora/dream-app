@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "src/**/*",
+    "vite.config.*",
+    "env.d.ts",
+    "src/vite-env.d.ts"
+  ],
+  "exclude": [
+    "src/server.ts",
+    "src/server/**/*",
+    "server",
+    "api",
+    "backend",
+    "numinos-service/**",
+    "scripts",
+    "tests-server",
+    "**/*.spec.ts",
+    "**/* 2.ts",
+    "**/* 2.tsx",
+    "**/* 3.ts",
+    "**/* 3.tsx"
+  ]
+  // TODO: Re-enable noUnusedLocals/noUnusedParameters after pruning legacy/duplicate client files & excluding server-only modules.
+}

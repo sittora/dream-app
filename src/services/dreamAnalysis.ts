@@ -1,5 +1,7 @@
-import { Dream, AnalysisResult } from '../types';
 import OpenAI from 'openai';
+
+import { logger } from '../lib/logger.browser';
+import { Dream, AnalysisResult } from '../types';
 
 // Initialize OpenAI with environment variable
 const openai = new OpenAI({
@@ -239,7 +241,7 @@ export const analyzeDream = async (dream: Dream): Promise<AnalysisResult> => {
     // Check if OpenAI API key is available
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     if (!apiKey || apiKey === 'dummy-key') {
-      console.warn('OpenAI API key not configured. Using fallback analysis.');
+      logger.warn('OpenAI API key not configured. Using fallback analysis.');
       return generateFallbackAnalysis(dream, significantSymbols);
     }
 
@@ -279,7 +281,7 @@ export const analyzeDream = async (dream: Dream): Promise<AnalysisResult> => {
       psychologicalInsights: generatePsychologicalInsights(significantSymbols, dream)
     };
   } catch (error) {
-    console.error('Dream analysis error:', error);
+    logger.error({ error }, 'Dream analysis error');
     // Find significant symbols for fallback analysis
     const significantSymbols = Object.keys(JUNGIAN_SYMBOLS).filter(symbol => 
       dream.content.toLowerCase().includes(symbol) || dream.symbols.includes(symbol)
@@ -336,7 +338,7 @@ const analyzeEmotionalTone = (content: string, mood: string): string => {
   return 'neutral';
 };
 
-const generatePsychologicalInsights = (symbols: string[], dream: Dream): string[] => {
+const generatePsychologicalInsights = (symbols: string[], _dream: Dream): string[] => {
   const insights: string[] = [];
   
   symbols.forEach(symbol => {

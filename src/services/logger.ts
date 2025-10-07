@@ -1,5 +1,7 @@
 import { format } from 'date-fns';
 
+import { logger as rootLogger } from '../lib/logger.browser';
+
 type LogLevel = 'info' | 'warn' | 'error';
 
 interface LogEntry {
@@ -23,7 +25,8 @@ class Logger {
     this.logs.push(entry);
     
     // In production, send to logging service
-    console.log(`[${entry.timestamp}] ${level.toUpperCase()}: ${message}`, data);
+  // Delegate to root logger to honor server logging policy
+  (rootLogger as any)[level]({ data, msg: message });
   }
 
   info(message: string, data?: Record<string, unknown>) {

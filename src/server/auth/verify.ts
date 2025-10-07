@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import pino from 'pino';
-import { emailVerificationSchema } from './validators.js';
+
 import { createEmailVerificationToken, verifyEmailVerificationToken } from './hash.js';
+import { emailVerificationSchema } from './validators.js';
 
 // Create logger instance
 const logger = pino({
@@ -33,16 +34,7 @@ export async function sendVerificationEmail(email: string, userId: string): Prom
       verificationLink,
     }, 'Email verification link generated (placeholder - not actually sent)');
 
-    console.log(`
-📧 EMAIL VERIFICATION (Development Mode)
-To: ${email}
-Subject: Verify your email address
-
-Please click the following link to verify your email address:
-${verificationLink}
-
-This link expires in 24 hours.
-    `);
+  logger.info({ email, verificationLink }, 'Dev email verification link (not actually sent)');
 
     // TODO: Implement actual email sending:
     // await emailService.send({

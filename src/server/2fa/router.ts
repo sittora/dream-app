@@ -1,16 +1,19 @@
 import { Router } from 'express';
 import pino from 'pino';
+
+import { createRateLimitMiddleware } from '../security/rateLimit.js';
+
+import {
+  generateBackupCodes,
+  verifyBackupCode,
+  getBackupCodeStatus,
+} from './backup.controller.js';
 import { 
   enrollTOTP,
   verifyTOTP,
   disableTOTP,
   getTOTPStatus,
 } from './totp.controller.js';
-import {
-  generateBackupCodes,
-  verifyBackupCode,
-  getBackupCodeStatus,
-} from './backup.controller.js';
 import {
   generateWebAuthnRegistrationOptions,
   verifyWebAuthnRegistration,
@@ -19,7 +22,7 @@ import {
   listWebAuthnCredentials,
   deleteWebAuthnCredential,
 } from './webauthn.controller.js';
-import { createRateLimitMiddleware } from '../security/rateLimit.js';
+
 
 // Create logger instance
 const logger = pino({

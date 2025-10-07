@@ -41,6 +41,18 @@ The following files/directories are automatically ignored by git:
 5. **SSL/TLS**: Use HTTPS in production
 6. **Key Management**: Use proper key management services for production keys
 
+### Secret Rotation & Incident Response
+
+If a secret (JWT secret, API key, private key) is ever committed:
+1. Immediately remove the key from the codebase (force-push not required if already in history — history rewrite only if high risk).
+2. Revoke/rotate the compromised credential in its issuing platform.
+3. Generate a new key and update hosting environment variables; DO NOT commit it.
+4. Trigger a fresh deployment so all running instances use the new secret.
+5. For JWT secrets: invalidate existing tokens by changing the signing secret and (optionally) maintaining a deny list for critical sessions.
+6. Document the incident (what leaked, detection time, rotation time) for internal tracking.
+
+Gitleaks and pre-commit scanning help prevent new leaks but cannot guarantee historic cleanliness—perform periodic full history scans.
+
 ## Development vs Production
 
 - **Development**: Default credentials are acceptable for local development

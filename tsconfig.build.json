@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noEmit": true
+  },
+  "include": [
+    "src/vite-env.d.ts",
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/components/**/*.tsx",
+    "src/pages/**/*.tsx",
+    "src/contexts/**/*.tsx",
+    "src/services/**/*.ts",
+    "src/lib/**/*.ts",
+    "src/types/**/*.ts",
+    "src/config/**/*.ts"
+  ],
+  "exclude": ["src/server.ts", "src/server/**", "src/app.ts", "src/serverApp.ts", "src/express-app.ts"]
+}

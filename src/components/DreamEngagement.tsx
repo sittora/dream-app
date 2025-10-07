@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Bookmark, Share2, BarChart2, Flag } from 'lucide-react';
+import React, { useState } from 'react';
+
 import type { Dream, User } from '../types';
 
 interface DreamEngagementProps {

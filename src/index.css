@@ -250,6 +250,50 @@
     animation: sparkle-float 2.4s linear infinite;
   }
 
+  /* Extra animated behavior for logo symbols */
+  @keyframes logo-float {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-3px) rotate(-2deg); }
+    50% { transform: translateY(-6px) rotate(1deg); }
+    75% { transform: translateY(-3px) rotate(-1deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  @keyframes logo-spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes sparkle-orbit {
+    0% { transform: translate(0,0) scale(0.8); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translate(2px,-8px) scale(1.05); opacity: 0.9; }
+    90% { opacity: 0.6; }
+    100% { transform: translate(0,0) scale(0.8); opacity: 0; }
+  }
+
+  .logo-moon {
+    display: inline-block;
+    transform-origin: 50% 50%;
+    animation: logo-float 4.5s ease-in-out infinite, logo-spin-slow 18s linear infinite;
+    will-change: transform;
+  }
+
+  /* make sparkles orbit subtly and stagger with inline animationDelay when provided */
+  .logo-sparkle {
+    animation-name: sparkle-float, sparkle-orbit;
+    animation-duration: 2.4s, 4.8s;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+  }
+
+  /* Intensify on hover for a magical reaction */
+  .logo-wrapper:hover .logo-moon {
+    animation: logo-float 2.4s ease-in-out infinite, logo-spin-slow 8s linear infinite;
+    filter: drop-shadow(0 6px 18px rgba(124,58,237,0.12));
+  }
+  .logo-wrapper:hover .logo-sparkle { opacity: 1; transform: scale(1); }
+
   @keyframes sparkle-float {
     0% { opacity: 0; transform: translateY(0) scale(0.6); }
     10% { opacity: 1; transform: translateY(-6px) scale(1); }
@@ -373,3 +417,45 @@
   ::-webkit-scrollbar-track { background: var(--surface); }
   ::-webkit-scrollbar-thumb { background: rgba(34,43,52,0.6); border-radius: 999px; }
 }
+
+/* Theme-aware aliases for common Tailwind-like color utilities used in JSX
+  These map frequently-used classnames (e.g. text-burgundy, bg-burgundy/20,
+  text-gray-400) to the CSS variables above so components automatically
+  adapt when `data-theme` changes. Escaped slashes are used to match
+  classnames that include opacity suffixes (e.g. bg-burgundy/20).
+*/
+
+/* Primary / "burgundy" alias (maps to --primary) */
+.text-burgundy { color: var(--primary) !important; }
+.text-burgundy\/50 { color: rgba(124,58,237,0.5) !important; }
+.text-burgundy\/80 { color: rgba(124,58,237,0.8) !important; }
+.bg-burgundy\/20 { background-color: rgba(124,58,237,0.2) !important; }
+.bg-burgundy\/10 { background-color: rgba(124,58,237,0.1) !important; }
+.border-burgundy\/20 { border-color: rgba(124,58,237,0.2) !important; }
+
+/* Mystic / surface darks */
+.bg-mystic-900\/50 { background-color: rgba(24,33,39,0.5) !important; }
+.bg-mystic-900\/95 { background-color: rgba(24,33,39,0.95) !important; }
+.bg-mystic-900\/60 { background-color: rgba(24,33,39,0.6) !important; }
+
+/* Gray / muted text mappings -> use the theme variables */
+.text-gray-400, .text-slate-400 { color: var(--muted) !important; }
+.text-gray-300, .text-slate-300 { color: rgba(242,245,247,0.75) !important; }
+.text-gray-200 { color: rgba(242,245,247,0.9) !important; }
+.text-gray-500 { color: rgba(242,245,247,0.6) !important; }
+
+/* Generic mappings for commonly used tokens */
+.text-burgundy\/50 { color: rgba(124,58,237,0.5) !important; }
+.text-white { color: #ffffff !important; }
+.text-red-400 { color: var(--danger) !important; }
+.bg-red-900\/20 { background-color: rgba(127,29,29,0.2) !important; }
+.border-white\/30 { border-color: rgba(255,255,255,0.3) !important; }
+
+/* Small utility aliases used in avatar / badges */
+.bg-burgundy\/20 { background-color: rgba(124,58,237,0.2) !important; }
+.text-burgundy { color: var(--primary) !important; }
+
+/* Fallbacks for interactive states that rely on tailwind hover: classes
+  If your build pipeline still includes Tailwind's hover utilities they'll
+  remain available; these base classes make the static colors theme-aware.
+*/

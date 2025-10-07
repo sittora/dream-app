@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import { Request, Response } from 'express';
 import { SignJWT, jwtVerify } from 'jose';
-import { z } from 'zod';
 import pino from 'pino';
+import { z } from 'zod';
+
 import { dbService } from '../../services/db.js';
 
 // Create logger instance

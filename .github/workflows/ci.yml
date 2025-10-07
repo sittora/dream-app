@@ -1,16 +1,62 @@
 name: CI
+
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+  schedule:
+    - cron: '0 3 * * 1' # Weekly Monday 03:00 UTC full secret scan
 
 jobs:
-  build-and-test:
+  validate-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Export GIT_SHA
+        run: echo "GIT_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Generate OpenAPI
+        run: npm run openapi:gen
+      - name: OpenAPI Lint
+        run: npm run openapi:lint
+      - name: Lint / Type / Test
+        run: npm run validate
+      - name: Build (if present)
+        run: npm run build --if-present
+      - name: ESLint JSON Baseline (warnings)
+        run: npm run lint:json || true
+
+  gitleaks-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gitleaks (working tree)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: "detect --no-git --redact"
+
+  gitleaks-history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks (full history)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: "detect --redact"
+
+  gitleaks-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gitleaks (PR/Push quick scan)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect -v --redact

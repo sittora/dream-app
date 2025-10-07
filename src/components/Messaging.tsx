@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, User } from 'lucide-react';
+import React, { useState } from 'react';
+
 import type { Message, User as UserType } from '../types';
 
 interface MessagingProps {

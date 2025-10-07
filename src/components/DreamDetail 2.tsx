@@ -1,7 +1,8 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, MessageCircle, Share2, Calendar, Hash, Eye, User, Clock } from 'lucide-react';
 import { format } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Heart, MessageCircle, Share2, Calendar, Hash, Eye, Clock } from 'lucide-react';
+import React from 'react';
+
 import type { Dream } from '../types';
 
 interface DreamDetailProps {

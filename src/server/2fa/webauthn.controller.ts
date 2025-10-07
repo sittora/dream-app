@@ -1,5 +1,3 @@
-import { Request, Response } from 'express';
-import pino from 'pino';
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
@@ -12,6 +10,9 @@ import type {
   VerifyRegistrationResponseOpts,
   VerifyAuthenticationResponseOpts,
 } from '@simplewebauthn/server';
+import { Request, Response } from 'express';
+import pino from 'pino';
+
 import {
   webauthnRegisterOptionsSchema,
   webauthnRegisterVerifySchema,
@@ -65,24 +66,24 @@ class WebAuthnDatabase {
     };
   }
 
-  async findCredentialsByUserId(userId: string): Promise<WebAuthnCredential[]> {
+  async findCredentialsByUserId(_userId: string): Promise<WebAuthnCredential[]> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement findCredentialsByUserId with existing database layer');
     return [];
   }
 
-  async findCredentialById(credentialID: string): Promise<WebAuthnCredential | null> {
+  async findCredentialById(_credentialID: string): Promise<WebAuthnCredential | null> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement findCredentialById with existing database layer');
     return null;
   }
 
-  async updateCredentialCounter(credentialID: string, counter: number): Promise<void> {
+  async updateCredentialCounter(_credentialID: string, _counter: number): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement updateCredentialCounter with existing database layer');
   }
 
-  async deleteCredential(id: string): Promise<void> {
+  async deleteCredential(_id: string): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement deleteCredential with existing database layer');
   }
@@ -94,13 +95,13 @@ class WebAuthnDatabase {
     return challengeId;
   }
 
-  async getChallenge(challengeId: string): Promise<WebAuthnChallenge | null> {
+  async getChallenge(_challengeId: string): Promise<WebAuthnChallenge | null> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement getChallenge with existing database layer');
     return null;
   }
 
-  async deleteChallenge(challengeId: string): Promise<void> {
+  async deleteChallenge(_challengeId: string): Promise<void> {
     // TODO: Implement with existing database layer
     logger.warn('TODO: Implement deleteChallenge with existing database layer');
   }

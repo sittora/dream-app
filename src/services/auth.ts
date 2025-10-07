@@ -1,10 +1,11 @@
-import { SignJWT, jwtVerify } from 'jose';
 import bcrypt from 'bcryptjs';
-import { z } from 'zod';
-import { generateTOTP, verifyTOTP } from './mfa';
-import { rateLimit } from './rateLimit';
-import { logger } from './logger';
+import { SignJWT } from 'jose';
+
 import { env } from '../config';
+
+import { logger } from './logger';
+import { rateLimit } from './rateLimit';
+
 
 const JWT_SECRET = new TextEncoder().encode(env.JWT_SECRET);
 
@@ -32,7 +33,7 @@ class AuthService {
       await rateLimit.checkLimit(data.email);
 
       const salt = await bcrypt.genSalt(12);
-      const hashedPassword = await bcrypt.hash(data.password, salt);
+  await bcrypt.hash(data.password, salt);
 
       logger.info('User registered successfully', { email: data.email });
     } catch (error) {
@@ -41,7 +42,7 @@ class AuthService {
     }
   }
 
-  async login({ email, password, mfaCode }: LoginCredentials): Promise<AuthResponse> {
+  async login({ email, password: _password, mfaCode }: LoginCredentials): Promise<AuthResponse> {
     try {
       await rateLimit.checkLimit(email);
       const user = { id: '1', email, mfaEnabled: true };
@@ -60,7 +61,7 @@ class AuthService {
     }
   }
 
-  async refreshToken(token: string): Promise<{ accessToken: string }> {
+  async refreshToken(_token: string): Promise<{ accessToken: string }> {
     try {
       const accessToken = await this.generateAccessToken('1');
       return { accessToken };

@@ -1,6 +1,7 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Crown, Star, Shield } from 'lucide-react';
+import React from 'react';
+
 import { RANKS } from '../types/rewards';
 
 interface RankBadgeProps {

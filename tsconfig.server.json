@@ -1,33 +1,21 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "noEmit": false,
-    "allowImportingTsExtensions": false,
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": [
     "src/server.ts",
-    "src/lib/**/*",
-    "src/services/jungClient.ts"
+    "src/server/**/*.ts",
+    "src/server/**/*.tsx"
   ],
   "exclude": [
-    "src/main.tsx",
-    "src/App.tsx",
     "src/components/**/*",
     "src/pages/**/*",
-    "src/contexts/**/*",
-    "src/hooks/**/*"
+    "src/App.tsx",
+    "src/main.tsx"
   ]
+  // TODO: Re-enable noUnusedLocals/noUnusedParameters after pruning unused parameters in server layer.
 }

@@ -1,0 +1,13 @@
+# Minimal Gitleaks configuration with allowlist for known fake/test placeholders.
+# Keep this as small as possible; prefer rotating real secrets over expanding allowlist.
+
+[allowlist]
+  description = "Allow common fake/test keys and placeholder patterns"
+  regexes = [
+    # OpenAI placeholder keys used in docs/examples
+    "sk-test-[A-Za-z0-9]{10,}",
+    # Localhost JWT or obvious 'change_me' placeholders
+    "change_me_[a-zA-Z0-9_]+",
+    # Generic dummy key words
+    "dummy-key",
+  ]

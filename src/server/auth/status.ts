@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import pino from 'pino';
+
 import { dbService } from '../../services/db.js';
 
 // Create logger instance
