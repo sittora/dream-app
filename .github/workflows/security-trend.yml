@@ -1,0 +1,31 @@
+name: Security Trend Snapshot
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # daily 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  trend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+      - name: Fetch artifacts (best effort)
+        run: |
+          npm run artifacts:gitleaks || true
+          npm run codeql:artifacts || true
+      - name: Append trend snapshot
+        run: npm run security:trend
+      - name: Upload trend JSONL
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-trend-jsonl
+          path: reports/security-trend.jsonl
+          if-no-files-found: ignore
+          retention-days: 14

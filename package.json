@@ -38,6 +38,14 @@
     ,"secrets:scan": "mkdir -p reports && bash scripts/run-gitleaks.sh detect --no-git --redact -f json -r reports/gitleaks-workspace.json -c .gitleaks.toml"
     ,"secrets:scan:staged": "mkdir -p reports && bash scripts/run-gitleaks.sh protect --staged --redact -f json -r reports/gitleaks-staged.json -c .gitleaks.toml"
     ,"secrets:scan:full": "mkdir -p reports && bash scripts/run-gitleaks.sh detect --redact -f json -r reports/gitleaks-full.json -c .gitleaks.toml"
+  ,"artifacts:gitleaks": "sh scripts/fetch-gitleaks-artifacts.sh"
+  ,"codeql:artifacts": "sh scripts/fetch-codeql-artifacts.sh"
+  ,"security:summary": "sh scripts/security-summary.sh"
+  ,"security:summary:json": "sh scripts/security-summary.sh --json"
+  ,"security:trend": "sh scripts/security-trend.sh"
+  ,"security:threshold": "sh scripts/security-threshold.sh"
+  ,"security:notify": "sh scripts/security-notify.sh"
+  ,"security:report:html": "sh scripts/security-report-html.sh"
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.0.8",

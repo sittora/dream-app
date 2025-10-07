@@ -132,6 +132,60 @@ Allowlist: `.gitleaks.toml` (kept intentionally tiny; rotate real secrets instea
 
 Pre-push hook blocks any staged leaks before they leave your machine.
 
+### Fetching Gitleaks Artifacts
+Use the helper to pull the latest JSON reports from CI and print totals.
+
+With GitHub CLI:
+```bash
+npm run artifacts:gitleaks          # defaults to dev
+npm run artifacts:gitleaks -- main  # override branch
+```
+
+Without GitHub CLI (REST fallback):
+```bash
+export GITHUB_TOKEN=<your_token>          # repo read
+export GITHUB_REPOSITORY=sittora/dream-app
+npm run artifacts:gitleaks -- dev
+```
+
+The script downloads any of:
+```
+gitleaks-ci-report
+gitleaks-diff-report
+gitleaks-history-report
+```
+It prints per-file totals and a combined total. Open the JSON in `./reports/` for details if totals > 0.
+
+### Fetching CodeQL Artifacts
+Fetch latest CodeQL SARIF artifacts and summarize total alerts, severity counts, and top rules.
+
+With GitHub CLI:
+```bash
+npm run codeql:artifacts             # defaults to dev
+npm run codeql:artifacts -- main     # another branch
+```
+
+Without GitHub CLI (REST fallback):
+```bash
+export GITHUB_TOKEN=<your_token>
+export GITHUB_REPOSITORY=sittora/dream-app
+npm run codeql:artifacts -- dev
+```
+
+Outputs:
+- Total alerts
+- Severity counts (error / warning / note)
+- Top 10 rules by occurrence
+
+SARIF files saved in `./reports/` (prefixed `codeql-`). Inspect individual `.sarif` files in an IDE or with specialized viewers for detailed traces.
+
+Run a combined local summary:
+```bash
+npm run security:summary   # summarizes local Gitleaks + CodeQL artifacts in ./reports
+npm run security:summary:json  # machine-readable summary
+npm run security:trend          # appends JSONL snapshot to reports/security-trend.jsonl
+```
+
 ## Architecture
 See `docs/architecture.md` for the full diagram and folder responsibilities.
 
@@ -260,22 +314,10 @@ anima-insights/
 ## Security (Summary)
 
 ### Authentication
-- JWT with refresh token rotation
-- TOTP-based 2FA
-- Secure session management
-- Rate limiting & lockouts
 
 ### Data Protection
-- Bcrypt password hashing
-- Environment variable security
-- SQL injection prevention
-- Input validation with Zod
 
 ### Best Practices
-- Security headers
-- CORS configuration
-- XSS prevention
-- CSRF tokens
 
 ## Design System (Snapshot)
 
@@ -285,10 +327,28 @@ anima-insights/
 - Text: `#F5E6D3` (Parchment)
 - Accents: Gold & Silver
 
+### Security Utilities
+Quick reference commands for local + CI security tooling:
+
+```bash
+# Summary (markdown)
+npm run security:summary
+# Summary (JSON)
+
+# Trend (append JSONL snapshot)
 ### Typography
+# Fetch artifacts (branch optional argument)
+npm run artifacts:gitleaks -- dev
+npm run codeql:artifacts -- dev
+# Threshold gate (used in CI)
 - Headers: UnifrakturMaguntia
+# Notify webhook (CI failure only; requires SECURITY_WEBHOOK secret)
 - Body: Cinzel
+# Generate HTML report (writes reports/security.html)
 - Content: Cormorant Garamond
+```
+
+CI uploads `security-report` artifact with the latest `reports/security.html` (view in browser for formatted tables).
 
 ### Components
 - Animated cards & transitions

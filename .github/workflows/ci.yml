@@ -183,3 +183,41 @@ jobs:
         with:
           name: gitleaks-ci-report
           path: reports/gitleaks-ci.json
+      - name: Security Summary
+        if: always()
+        run: |
+          npm run artifacts:gitleaks || true
+          npm run codeql:artifacts || true
+          echo "## Security Summary" >> "$GITHUB_STEP_SUMMARY"
+          sh scripts/security-summary.sh >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Enforce security threshold
+        run: npm run security:threshold
+      - name: Security notify (on failure)
+        if: failure() && env.SECURITY_WEBHOOK != ''
+        env:
+          SECURITY_WEBHOOK: ${{ secrets.SECURITY_WEBHOOK }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: npm run security:notify
+      - name: Build security HTML report
+        if: always()
+        run: |
+          npm run artifacts:gitleaks || true
+          npm run codeql:artifacts || true
+          npm run security:report:html || true
+      - name: Upload security.html
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: reports/security.html
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Link security report in summary
+        if: always()
+        run: |
+          echo "### Security HTML Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "Artifact: **security-report** (contains \`reports/security.html\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Download from the **Artifacts** section of this run." >> "$GITHUB_STEP_SUMMARY"
