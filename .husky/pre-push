@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 echo "[pre-push] Secret scan (staged)"
-npx gitleaks protect --staged --redact || { echo "[pre-push] Secret scan failed. Resolve or update allowlist."; exit 1; }
+# Ensure local binaries are accessible (some shells may not add node_modules/.bin)
+export PATH="$(pwd)/node_modules/.bin:$PATH"
+npm run secrets:scan:staged || { echo "[pre-push] Secret scan failed. Resolve or update allowlist."; exit 1; }
 echo "[pre-push] Running repo validate…"
 npm run validate

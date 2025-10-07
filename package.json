@@ -35,9 +35,9 @@
     "dev:server:fast": "cross-env PORT=3001 tsx src/server.ts",
     "openapi:lint": "spectral lint docs/openapi.yaml"
     ,"openapi:gen": "tsx scripts/generate-openapi.ts"
-    ,"secrets:scan": "gitleaks detect --no-git -v"
-    ,"secrets:scan:staged": "gitleaks protect --staged --redact"
-    ,"secrets:scan:full": "gitleaks detect -v"
+    ,"secrets:scan": "mkdir -p reports && bash scripts/run-gitleaks.sh detect --no-git --redact -f json -r reports/gitleaks-workspace.json -c .gitleaks.toml"
+    ,"secrets:scan:staged": "mkdir -p reports && bash scripts/run-gitleaks.sh protect --staged --redact -f json -r reports/gitleaks-staged.json -c .gitleaks.toml"
+    ,"secrets:scan:full": "mkdir -p reports && bash scripts/run-gitleaks.sh detect --redact -f json -r reports/gitleaks-full.json -c .gitleaks.toml"
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.0.8",

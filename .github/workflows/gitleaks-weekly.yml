@@ -14,6 +14,42 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         with:
           args: detect -v --redact
+      - name: Gitleaks summary
+        if: always()
+        run: |
+          echo "## Gitleaks Report" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/gitleaks-ci.json ]; then REPORT=reports/gitleaks-ci.json; fi
+          if [ -f reports/gitleaks-diff.json ]; then REPORT=reports/gitleaks-diff.json; fi
+          if [ -f reports/gitleaks-history.json ]; then REPORT=reports/gitleaks-history.json; fi
+          if [ -f reports/gitleaks-full.json ]; then REPORT=reports/gitleaks-full.json; fi
+          if [ -z "$REPORT" ]; then
+            echo "No report found." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Report file:** \`$REPORT\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '
+              def short: .[:1];
+              def rows:
+                (.findings // []) 
+                | group_by(.RuleID) 
+                | map({rule: .[0].RuleID, count: length}) 
+                | sort_by(-.count)
+                | .[:10]
+                | (["Rule","Count"], ["---","---"]) as $h
+                | $h, (map([.rule, (.count|tostring)][]));
+              def total: ((.findings // []) | length);
+              "Total findings: " + (total|tostring),
+              "",
+              (rows | @tsv)
+            ' "$REPORT" | awk '
+              NR==1 {print $0 "\n"} 
+              NR==2 {print $0 "\n"} 
+              NR==3 {print "| " $0 " |"} 
+              NR==4 {print "| " $0 " |"} 
+              NR>4  {print "| " $1 " | " $2 " |"}
+            ' >> "$GITHUB_STEP_SUMMARY"
       # Optional Slack notification if secret detected and webhook configured
       - name: Slack notify (on failure)
         if: failure()

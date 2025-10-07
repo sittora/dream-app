@@ -39,7 +39,48 @@ jobs:
       - name: Gitleaks (working tree)
         uses: gitleaks/gitleaks-action@v2
         with:
-          args: "detect --no-git --redact"
+          args: "protect --redact --report-format json --report-path reports/gitleaks-diff.json --config-path .gitleaks.toml"
+      - name: Gitleaks summary
+        if: always()
+        run: |
+          echo "## Gitleaks Report" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/gitleaks-ci.json ]; then REPORT=reports/gitleaks-ci.json; fi
+          if [ -f reports/gitleaks-diff.json ]; then REPORT=reports/gitleaks-diff.json; fi
+          if [ -f reports/gitleaks-history.json ]; then REPORT=reports/gitleaks-history.json; fi
+          if [ -z "$REPORT" ]; then
+            echo "No report found." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Report file:** \`$REPORT\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '
+              def short: .[:1];
+              def rows:
+                (.findings // []) 
+                | group_by(.RuleID) 
+                | map({rule: .[0].RuleID, count: length}) 
+                | sort_by(-.count)
+                | .[:10]
+                | (["Rule","Count"], ["---","---"]) as $h
+                | $h, (map([.rule, (.count|tostring)][]));
+              def total: ((.findings // []) | length);
+              "Total findings: " + (total|tostring),
+              "",
+              (rows | @tsv)
+            ' "$REPORT" | awk '
+              NR==1 {print $0 "\n"} 
+              NR==2 {print $0 "\n"} 
+              NR==3 {print "| " $0 " |"} 
+              NR==4 {print "| " $0 " |"} 
+              NR>4  {print "| " $1 " | " $2 " |"}
+            ' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Gitleaks diff report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-diff-report
+          path: reports/gitleaks-diff.json
 
   gitleaks-history:
     runs-on: ubuntu-latest
@@ -50,7 +91,48 @@ jobs:
       - name: Gitleaks (full history)
         uses: gitleaks/gitleaks-action@v2
         with:
-          args: "detect --redact"
+          args: "detect --redact --report-format json --report-path reports/gitleaks-ci.json --config-path .gitleaks.toml"
+      - name: Gitleaks summary
+        if: always()
+        run: |
+          echo "## Gitleaks Report" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/gitleaks-ci.json ]; then REPORT=reports/gitleaks-ci.json; fi
+          if [ -f reports/gitleaks-diff.json ]; then REPORT=reports/gitleaks-diff.json; fi
+          if [ -f reports/gitleaks-history.json ]; then REPORT=reports/gitleaks-history.json; fi
+          if [ -z "$REPORT" ]; then
+            echo "No report found." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Report file:** \`$REPORT\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '
+              def short: .[:1];
+              def rows:
+                (.findings // []) 
+                | group_by(.RuleID) 
+                | map({rule: .[0].RuleID, count: length}) 
+                | sort_by(-.count)
+                | .[:10]
+                | (["Rule","Count"], ["---","---"]) as $h
+                | $h, (map([.rule, (.count|tostring)][]));
+              def total: ((.findings // []) | length);
+              "Total findings: " + (total|tostring),
+              "",
+              (rows | @tsv)
+            ' "$REPORT" | awk '
+              NR==1 {print $0 "\n"} 
+              NR==2 {print $0 "\n"} 
+              NR==3 {print "| " $0 " |"} 
+              NR==4 {print "| " $0 " |"} 
+              NR>4  {print "| " $1 " | " $2 " |"}
+            ' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Gitleaks history report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-history-report
+          path: reports/gitleaks-ci.json
 
   gitleaks-ci:
     runs-on: ubuntu-latest
@@ -59,4 +141,45 @@ jobs:
       - name: Gitleaks (PR/Push quick scan)
         uses: gitleaks/gitleaks-action@v2
         with:
-          args: detect -v --redact
+          args: "detect --redact --report-format json --report-path reports/gitleaks-ci.json --config-path .gitleaks.toml"
+      - name: Gitleaks summary
+        if: always()
+        run: |
+          echo "## Gitleaks Report" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/gitleaks-ci.json ]; then REPORT=reports/gitleaks-ci.json; fi
+          if [ -f reports/gitleaks-diff.json ]; then REPORT=reports/gitleaks-diff.json; fi
+          if [ -f reports/gitleaks-history.json ]; then REPORT=reports/gitleaks-history.json; fi
+          if [ -z "$REPORT" ]; then
+            echo "No report found." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Report file:** \`$REPORT\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '
+              def short: .[:1];
+              def rows:
+                (.findings // []) 
+                | group_by(.RuleID) 
+                | map({rule: .[0].RuleID, count: length}) 
+                | sort_by(-.count)
+                | .[:10]
+                | (["Rule","Count"], ["---","---"]) as $h
+                | $h, (map([.rule, (.count|tostring)][]));
+              def total: ((.findings // []) | length);
+              "Total findings: " + (total|tostring),
+              "",
+              (rows | @tsv)
+            ' "$REPORT" | awk '
+              NR==1 {print $0 "\n"} 
+              NR==2 {print $0 "\n"} 
+              NR==3 {print "| " $0 " |"} 
+              NR==4 {print "| " $0 " |"} 
+              NR>4  {print "| " $1 " | " $2 " |"}
+            ' >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Gitleaks CI report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-ci-report
+          path: reports/gitleaks-ci.json
